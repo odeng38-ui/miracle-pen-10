@@ -69,8 +69,26 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
             overflow: hidden;
             border: 1px solid #334155; 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.5s ease-in-out;
         }
-        canvas { width: 100%; height: 100%; touch-action: none; display: block; }
+        
+        /* 🚀 이미지 위에 글씨가 번쩍이도록 어두운 틴트(필터) 깔아주기 */
+        #canvas-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.55); 
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        canvas { 
+            width: 100%; height: 100%; touch-action: none; display: block; 
+            position: relative; z-index: 1;
+        }
 
         #controls {
             flex-shrink: 0;
@@ -96,7 +114,6 @@
             text-align: center; padding: 20px;
         }
 
-        /* 🚀 폭발하는 태양이 텍스트를 가리지 않도록, 여백을 크게 확보하고 코어 사이즈를 작게 시작 */
         .breathe-circle {
             width: 40px; height: 40px; border-radius: 50%;
             background-color: transparent; 
@@ -107,13 +124,12 @@
                 0 0 30px 15px #facc15,       
                 0 0 60px 30px #f59e0b,       
                 0 0 100px 50px #b45309;      
-            margin: 80px auto 100px; /* 위 80px, 아래 100px 여백으로 텍스트 침범 방지 */
+            margin: 80px auto 100px; 
             will-change: transform;
             position: relative;
             z-index: 1;
         }
 
-        /* 🚀 밝은 태양빛 위에서도 글자가 무조건 또렷하게 보이도록 그림자 효과와 높은 z-index 설정 */
         #breathe-text { 
             font-size: 1.35rem; 
             font-weight: 900; 
@@ -129,7 +145,7 @@
 
         @keyframes breatheIn {
             from { transform: scale(1) translateZ(0); }
-            to { transform: scale(4.5) translateZ(0); } /* 40px가 최대 180px로 커짐 */
+            to { transform: scale(4.5) translateZ(0); } 
         }
         @keyframes breatheHold {
             from { transform: scale(4.5) translateZ(0); }
@@ -177,7 +193,6 @@
 </head>
 <body>
 
-<!-- 🚀 1. 뇌파 조율(호흡) 오버레이 -->
 <div id="breathe-overlay">
     <h2 style="color:#fbbf24; margin-bottom: 20px;">무의식 동기화</h2>
     <p style="color:#94a3b8; font-size: 0.9rem; line-height:1.5;">글씨를 쓰기 전, 뇌의 가장 평온한<br>'알파파' 상태로 진입합니다.</p>
@@ -186,7 +201,6 @@
     <button class="btn-skip" onclick="endBreathing()" style="margin-top: 50px;">건너뛰기 (시작)</button>
 </div>
 
-<!-- 🚀 4. 초연함 오버레이 -->
 <div id="letgo-overlay">
     <div style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 20px; color:#fbbf24;">수고하셨습니다.</div>
     <p style="font-size: 1.1rem; line-height: 1.6; color:#e2e8f0;">이제 모든 간절함을 우주에 맡기고<br>완전히 초연해지세요.</p>
@@ -241,7 +255,6 @@
     let isDrawing = false;
     let undoHistory = []; 
 
-    // 🚀 1. 호흡 애니메이션 로직
     let breatheTimer1, breatheTimer2, breatheTimer3;
 
     function startBreathing() {
@@ -288,7 +301,6 @@
         updateUI(); 
     }
 
-    // 🚀 4. 초연함의 5초 (Letting Go) 로직
     function startLettingGo() {
         const overlay = document.getElementById('letgo-overlay');
         const countdownEl = document.getElementById('letgo-countdown');
@@ -366,9 +378,9 @@
         }
     }
 
+    // 🚀 Canvas 배경 투명화 처리로 전환
     function clearCanvas() {
-        ctx.fillStyle = "#1e293b"; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         undoHistory = [];
         saveState();
     }
@@ -418,6 +430,11 @@
         document.getElementById('page-num').innerText = `STEP ${String(currentIndex + 1).padStart(2, '0')} / 10`;
         const nextBtn = document.getElementById('next-btn');
         nextBtn.innerText = (currentIndex === afformations.length - 1) ? "완료하기" : "다음 단계";
+        
+        // 🚀 유저가 올린 img_1.jpg ~ img_10.jpg 매핑 (실행 배경)
+        const wrapper = document.getElementById('canvas-wrapper');
+        wrapper.style.backgroundImage = `url('img_${currentIndex + 1}.jpg')`;
+
         clearCanvas();
     }
 
@@ -426,7 +443,6 @@
             currentIndex++;
             updateUI();
         } else {
-            // 🚀 10개 문장 끝! 이제 초연함의 시간으로 넘어감
             startLettingGo();
         }
     }
@@ -459,7 +475,6 @@
             `<div class="summary-item"><span class="summary-num">${idx + 1}.</span> ${text}</div>`
         ).join('');
 
-        // 🚀 앱이 켜지자마자 호흡 시작!
         startBreathing();
     };
     
