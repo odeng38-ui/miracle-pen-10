@@ -95,10 +95,12 @@
             display: none; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 20px;
         }
+        /* 🚀 강제 다크모드 반전 방지 및 더 밝고 우아한 빛무리 원형 디자인 */
         .breathe-circle {
             width: 70px; height: 70px; border-radius: 50%;
-            background: radial-gradient(circle, #fbbf24, #b45309);
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            background-color: rgba(251, 191, 36, 0.15); /* 반투명 배경 */
+            border: 3px solid #fbbf24; /* 선명한 황금색 테두리 */
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.9), inset 0 0 20px rgba(251, 191, 36, 0.7);
             margin: 60px auto;
             will-change: transform;
         }
