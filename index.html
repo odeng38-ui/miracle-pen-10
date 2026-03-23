@@ -95,19 +95,26 @@
             display: none; flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 20px;
         }
-        /* 🚀 강제 다크모드 반전 방지 및 더 밝고 우아한 빛무리 원형 디자인 */
+
+        /* 🚀 진짜 태양(Sun)처럼 눈부시게 폭발하는 오라(Aura) 디자인 */
+        /* 모바일 강제 반전을 방지하기 위해 background 대신 오직 box-shadow만 사용해 코어를 꽉 채움 */
         .breathe-circle {
             width: 70px; height: 70px; border-radius: 50%;
-            background-color: rgba(251, 191, 36, 0.15); /* 반투명 배경 */
-            border: 3px solid #fbbf24; /* 선명한 황금색 테두리 */
-            box-shadow: 0 0 30px rgba(251, 191, 36, 0.9), inset 0 0 20px rgba(251, 191, 36, 0.7);
-            margin: 60px auto;
+            background-color: transparent; /* 반전 완전 차단 */
+            border: none;
+            box-shadow: 
+                inset 0 0 20px 10px #fef08a, /* 태양 중심부(백열) */
+                0 0 20px 10px #fef08a,       /* 코어 발광 */
+                0 0 50px 20px #facc15,       /* 1차 황금빛 후광 */
+                0 0 90px 40px #f59e0b,       /* 2차 따뜻한 주황빛 후광 */
+                0 0 140px 60px #b45309;      /* 3차 깊은 붉은빛 에너지 */
+            margin: 70px auto;
             will-change: transform;
         }
+
         #breathe-text { font-size: 1.2rem; font-weight: bold; color: var(--text-white); line-height:1.6; height: 70px; }
         .btn-skip { background: transparent; color: #94a3b8; border: 1px solid #475569; border-radius: 20px; padding: 8px 20px; font-size:0.85rem;}
 
-        /* 🚀 모바일 전용 안정적인 애니메이션 (하드웨어 가속) */
         @keyframes breatheIn {
             from { transform: scale(1) translateZ(0); }
             to { transform: scale(3.5) translateZ(0); }
