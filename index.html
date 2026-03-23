@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- 🚀 다크 모드 강제 반전 완벽 방지 -->
     <meta name="color-scheme" content="dark">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e293b">
@@ -66,16 +64,19 @@
         }
         canvas { width: 100%; height: 100%; touch-action: none; display: block; }
 
+        /* 🚀 되돌리기 버튼이 추가되어 4칸으로 변경 */
         #controls {
             flex-shrink: 0;
-            display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px;
+            display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1.2fr; gap: 8px;
             padding: 10px 15px 15px; 
             background-color: var(--card-bg);
         }
         button {
-            padding: 12px 5px; border: none; border-radius: 10px;
+            padding: 12px 2px; border: none; border-radius: 10px;
             font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+            word-break: keep-all; 
         }
+        .btn-undo { background: #64748b; color: white; }
         .btn-clear { background: #475569; color: white; }
         .btn-prev { background: #334155; color: #94a3b8; }
         .btn-next { background: #eab308; color: #000; }
@@ -103,7 +104,8 @@
 </div>
 
 <div id="controls">
-    <button class="btn-clear" onclick="clearCanvas()">지우기</button>
+    <button class="btn-undo" onclick="undo()">↩ 취소</button>
+    <button class="btn-clear" onclick="clearCanvas()">전체 지움</button>
     <button class="btn-prev" onclick="prevStep()">이전</button>
     <button class="btn-next" onclick="nextStep()" id="next-btn">다음 단계</button>
 </div>
@@ -133,6 +135,7 @@
     const canvas = document.getElementById('writeCanvas');
     const ctx = canvas.getContext('2d', { desynchronized: true }); 
     let isDrawing = false;
+    let undoHistory = []; // 🚀 되돌리기용 배열
 
     function loadDateLog() {
         const lastDate = localStorage.getItem('miracle_pen_last_date');
@@ -163,6 +166,33 @@
         canvas.height = wrapper.clientHeight * dpr;
         ctx.scale(dpr, dpr);
         clearCanvas();
+    }
+
+    // 🚀 화면 픽셀 데이터를 저장하는 함수
+    function saveState() {
+        if (!canvas.width || !canvas.height) return;
+        undoHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        if (undoHistory.length > 30) {
+            undoHistory.shift(); // 30번까지만 기억 (메모리 절약)
+        }
+    }
+
+    // 🚀 되돌리기 (Undo) 함수
+    function undo() {
+        if (undoHistory.length > 1) {
+            undoHistory.pop(); // 지금 화면 상태를 버리기
+            const previousState = undoHistory[undoHistory.length - 1]; // 그 이전 화면 상태 
+            ctx.putImageData(previousState, 0, 0); // 덮어씌우기
+        }
+    }
+
+    function clearCanvas() {
+        ctx.fillStyle = "#1e293b"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 🚀 지울 때 되돌리기 기록도 싹 날리기 + 현재 빈 상태 저장
+        undoHistory = [];
+        saveState();
     }
 
     function getPos(e) {
@@ -198,8 +228,11 @@
     }
 
     function stopDrawing() {
-        isDrawing = false;
-        ctx.closePath();
+        if (isDrawing) {
+            isDrawing = false;
+            ctx.closePath();
+            saveState(); // 🚀 펜을 뗄 때마다 화면 상태 저장!
+        }
     }
 
     function updateUI() {
@@ -209,11 +242,6 @@
         nextBtn.innerText = (currentIndex === afformations.length - 1) ? "완료하기" : "다음 단계";
         
         clearCanvas();
-    }
-
-    function clearCanvas() {
-        ctx.fillStyle = "#1e293b"; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     function nextStep() {
