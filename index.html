@@ -89,6 +89,39 @@
             flex-direction: column; align-items: center; justify-content: center;
             text-align: center; padding: 20px;
         }
+
+        /* 🚀 완료 팝업 내 스크롤 가능한 요약 박스 디자인 */
+        #summary-box {
+            width: 100%;
+            max-width: 350px;
+            max-height: 45vh; /* 화면 높이의 45%까지만 커지도록 제한하여 스크롤 생성 */
+            overflow-y: auto;
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: left;
+            border: 1px solid #334155;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        /* 스크롤바 디자인 (앱처럼 얇고 깔끔하게) */
+        #summary-box::-webkit-scrollbar { width: 4px; }
+        #summary-box::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+
+        .summary-item {
+            font-size: 0.95rem;
+            color: var(--text-white);
+            margin-bottom: 12px;
+            line-height: 1.45;
+            word-break: keep-all;
+        }
+        .summary-item:last-child { margin-bottom: 0; }
+        .summary-num {
+            color: #fbbf24;
+            font-weight: bold;
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -112,9 +145,13 @@
 
 <div id="complete-overlay">
     <h2 style="color:#fbbf24; margin-bottom:5px;">Mission Complete!</h2>
-    <p id="streak-msg" style="color:#10b981; font-weight:bold; margin-top:5px; margin-bottom:15px;"></p>
-    <p style="line-height:1.6; margin-top:0;">오늘의 기록을 마쳤습니다.<br>당신의 뇌는 이미 성공의 증거를<br>찾기 시작했습니다.</p>
-    <button class="btn-next" style="width: 180px; margin-top:20px;" onclick="restart()">처음으로</button>
+    <p id="streak-msg" style="color:#10b981; font-weight:bold; margin-top:5px; margin-bottom:10px;"></p>
+    
+    <!-- 🚀 10개 문장 복습 박스 -->
+    <div id="summary-box"></div>
+    
+    <p style="line-height:1.4; margin-top:10px; margin-bottom:5px; font-size: 0.9rem; color: #94a3b8;">소리 내어 한 번 더 읽어보시면 더욱 좋습니다.</p>
+    <button class="btn-next" style="width: 180px; margin-top:10px;" onclick="restart()">처음으로 돌아가기</button>
 </div>
 
 <script>
@@ -168,21 +205,21 @@
         clearCanvas();
     }
 
-    // 🚀 화면 픽셀 데이터를 저장하는 함수
+    // 🚀 화면 데이터 상태 기록하기
     function saveState() {
         if (!canvas.width || !canvas.height) return;
         undoHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
         if (undoHistory.length > 30) {
-            undoHistory.shift(); // 30번까지만 기억 (메모리 절약)
+            undoHistory.shift(); 
         }
     }
 
-    // 🚀 되돌리기 (Undo) 함수
+    // 🚀 뒤로 가기(Undo)
     function undo() {
         if (undoHistory.length > 1) {
-            undoHistory.pop(); // 지금 화면 상태를 버리기
-            const previousState = undoHistory[undoHistory.length - 1]; // 그 이전 화면 상태 
-            ctx.putImageData(previousState, 0, 0); // 덮어씌우기
+            undoHistory.pop(); 
+            const previousState = undoHistory[undoHistory.length - 1]; 
+            ctx.putImageData(previousState, 0, 0); 
         }
     }
 
@@ -190,7 +227,7 @@
         ctx.fillStyle = "#1e293b"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 🚀 지울 때 되돌리기 기록도 싹 날리기 + 현재 빈 상태 저장
+        // 🚀 지울 때 되돌리기 역사도 리셋
         undoHistory = [];
         saveState();
     }
@@ -231,7 +268,7 @@
         if (isDrawing) {
             isDrawing = false;
             ctx.closePath();
-            saveState(); // 🚀 펜을 뗄 때마다 화면 상태 저장!
+            saveState(); // 🚀 펜을 뗄때 상태 저장
         }
     }
 
@@ -279,6 +316,12 @@
         resizeCanvas();
         updateUI();
         loadDateLog(); 
+        
+        // 🚀 자바스크립트로 10개의 문장을 HTML에 동적으로 밀어넣기
+        const summaryBox = document.getElementById('summary-box');
+        summaryBox.innerHTML = afformations.map((text, idx) => 
+            `<div class="summary-item"><span class="summary-num">${idx + 1}.</span> ${text}</div>`
+        ).join('');
     };
     
     window.addEventListener('resize', () => {
