@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 🚀 다크 모드 강제 반전 완벽 방지 -->
+    <meta name="color-scheme" content="dark">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e293b">
+
+    <title>Miracle Pen 10</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-gold: #fbbf24;
+            --text-white: #f8fafc;
+            --app-height: 100dvh; 
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: var(--app-height);
+            background-color: var(--bg-color);
+            font-family: 'Pretendard', sans-serif;
+            color: var(--text-white);
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+
+            overscroll-behavior-y: none; 
+            -webkit-user-select: none; 
+            user-select: none;
+        }
+
+        #header {
+            flex-shrink: 0; 
+            padding: 15px 15px 10px;
+            text-align: center;
+            background: #1e293b;
+        }
+        
+        #date-log { font-size: 0.75rem; color: #10b981; margin-bottom: 5px; font-weight: bold; }
+        
+        .page-indicator { font-size: 0.75rem; color: #94a3b8; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+        #question-container {
+            min-height: 60px; display: flex; align-items: center; justify-content: center;
+            text-align: center; font-size: 1.15rem; font-weight: 700;
+            color: var(--text-gold); line-height: 1.4; word-break: keep-all;
+        }
+
+        #canvas-wrapper {
+            flex-grow: 1; 
+            position: relative;
+            margin: 10px 15px;
+            border-radius: 15px;
+            background-color: #1e293b; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+            overflow: hidden;
+            border: 1px solid #334155; 
+        }
+        canvas { width: 100%; height: 100%; touch-action: none; display: block; }
+
+        #controls {
+            flex-shrink: 0;
+            display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px;
+            padding: 10px 15px 15px; 
+            background-color: var(--card-bg);
+        }
+        button {
+            padding: 12px 5px; border: none; border-radius: 10px;
+            font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-clear { background: #475569; color: white; }
+        .btn-prev { background: #334155; color: #94a3b8; }
+        .btn-next { background: #eab308; color: #000; }
+        
+        button:active { transform: scale(0.95); opacity: 0.8; }
+
+        #complete-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.98); z-index: 100;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <div id="date-log">최근 달성일: 기록 없음</div>
+    <div class="page-indicator" id="page-num">STEP 01 / 10</div>
+    <div id="question-container">질문을 불러오는 중...</div>
+</div>
+
+<div id="canvas-wrapper">
+    <canvas id="writeCanvas"></canvas>
+</div>
+
+<div id="controls">
+    <button class="btn-clear" onclick="clearCanvas()">지우기</button>
+    <button class="btn-prev" onclick="prevStep()">이전</button>
+    <button class="btn-next" onclick="nextStep()" id="next-btn">다음 단계</button>
+</div>
+
+<div id="complete-overlay">
+    <h2 style="color:#fbbf24; margin-bottom:5px;">Mission Complete!</h2>
+    <p id="streak-msg" style="color:#10b981; font-weight:bold; margin-top:5px; margin-bottom:15px;"></p>
+    <p style="line-height:1.6; margin-top:0;">오늘의 기록을 마쳤습니다.<br>당신의 뇌는 이미 성공의 증거를<br>찾기 시작했습니다.</p>
+    <button class="btn-next" style="width: 180px; margin-top:20px;" onclick="restart()">처음으로</button>
+</div>
+
+<script>
+    const afformations = [
+        "왜 나는 존재 자체로 이미 충분하며, 이토록 완벽한 존재일까?",
+        "왜 나는 매달 5,000만 원 이상의 수익을 매번 쉽고 당연하게 벌어들이고 있을까?",
+        "왜 나의 자산 100억 달성은 이토록 빠르고 안정적으로 이루어지고 있는가?",
+        "왜 내가 구축한 자동화 시스템들은 잠자는 동안에도 나에게 자유와 풍요를 가져다줄까?",
+        "왜 나는 지점장으로서 조직을 이끌며 이토록 압도적인 성과와 리더십을 발휘하고 있을까?",
+        "왜 나는 사랑하는 딸에게 매일 최고의 영감을 주는 든든하고 다정한 아빠일까?",
+        "왜 내가 집필 중인 책은 수많은 사람의 인생을 바꾸며 세상을 더 좋게 만들고 있을까?",
+        "왜 우주의 기운과 풍수의 에너지는 항상 나를 가장 운 좋은 길로만 안내하는 걸까?",
+        "왜 나는 매 순간 마음의 평온을 유지하며 내가 원하는 현실을 아주 가볍게 창조하고 있을까?",
+        "왜 나의 삶은 시간이 갈수록 더 자유롭고, 풍요롭고, 행복한 기적으로 가득 차는 걸까?"
+    ];
+
+    let currentIndex = 0;
+    const canvas = document.getElementById('writeCanvas');
+    const ctx = canvas.getContext('2d', { desynchronized: true }); 
+    let isDrawing = false;
+
+    function loadDateLog() {
+        const lastDate = localStorage.getItem('miracle_pen_last_date');
+        if (lastDate) {
+            document.getElementById('date-log').innerText = `최근 달성일: ${lastDate}`;
+        }
+    }
+
+    function saveCompletionRecord() {
+        const today = new Date().toLocaleDateString('ko-KR');
+        let dates = JSON.parse(localStorage.getItem('miracle_pen_dates') || "[]");
+        
+        if (!dates.includes(today)) {
+            dates.push(today);
+            localStorage.setItem('miracle_pen_dates', JSON.stringify(dates));
+        }
+        
+        localStorage.setItem('miracle_pen_last_date', today);
+        loadDateLog(); 
+        
+        return dates.length; 
+    }
+
+    function resizeCanvas() {
+        const wrapper = document.getElementById('canvas-wrapper');
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = wrapper.clientWidth * dpr;
+        canvas.height = wrapper.clientHeight * dpr;
+        ctx.scale(dpr, dpr);
+        clearCanvas();
+    }
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const pos = getPos(e);
+        
+        ctx.lineWidth = 3; 
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#fbbf24'; 
+        
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        e.preventDefault();
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        ctx.closePath();
+    }
+
+    function updateUI() {
+        document.getElementById('question-container').innerText = afformations[currentIndex];
+        document.getElementById('page-num').innerText = `STEP ${String(currentIndex + 1).padStart(2, '0')} / 10`;
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.innerText = (currentIndex === afformations.length - 1) ? "완료하기" : "다음 단계";
+        
+        clearCanvas();
+    }
+
+    function clearCanvas() {
+        ctx.fillStyle = "#1e293b"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function nextStep() {
+        if (currentIndex < afformations.length - 1) {
+            currentIndex++;
+            updateUI();
+        } else {
+            const totalDays = saveCompletionRecord();
+            document.getElementById('streak-msg').innerText = `🔥 누적 ${totalDays}일째 목표 달성 완료!`;
+            document.getElementById('complete-overlay').style.display = 'flex';
+        }
+    }
+
+    function prevStep() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateUI();
+        }
+    }
+
+    function restart() {
+        currentIndex = 0;
+        document.getElementById('complete-overlay').style.display = 'none';
+        updateUI();
+    }
+
+    canvas.addEventListener('touchstart', startDrawing, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    canvas.addEventListener('touchend', stopDrawing, {passive: false});
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+
+    window.onload = () => {
+        resizeCanvas();
+        updateUI();
+        loadDateLog(); 
+    };
+    
+    window.addEventListener('resize', () => {
+        setTimeout(resizeCanvas, 100);
+    });
+</script>
+
+</body>
+</html>
