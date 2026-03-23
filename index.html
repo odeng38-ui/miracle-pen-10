@@ -64,7 +64,6 @@
         }
         canvas { width: 100%; height: 100%; touch-action: none; display: block; }
 
-        /* 🚀 되돌리기 버튼이 추가되어 4칸으로 변경 */
         #controls {
             flex-shrink: 0;
             display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1.2fr; gap: 8px;
@@ -90,11 +89,10 @@
             text-align: center; padding: 20px;
         }
 
-        /* 🚀 완료 팝업 내 스크롤 가능한 요약 박스 디자인 */
         #summary-box {
             width: 100%;
             max-width: 350px;
-            max-height: 45vh; /* 화면 높이의 45%까지만 커지도록 제한하여 스크롤 생성 */
+            max-height: 45vh; 
             overflow-y: auto;
             background: #0f172a;
             border-radius: 10px;
@@ -105,7 +103,6 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
         }
 
-        /* 스크롤바 디자인 (앱처럼 얇고 깔끔하게) */
         #summary-box::-webkit-scrollbar { width: 4px; }
         #summary-box::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
 
@@ -147,7 +144,6 @@
     <h2 style="color:#fbbf24; margin-bottom:5px;">Mission Complete!</h2>
     <p id="streak-msg" style="color:#10b981; font-weight:bold; margin-top:5px; margin-bottom:10px;"></p>
     
-    <!-- 🚀 10개 문장 복습 박스 -->
     <div id="summary-box"></div>
     
     <p style="line-height:1.4; margin-top:10px; margin-bottom:5px; font-size: 0.9rem; color: #94a3b8;">소리 내어 한 번 더 읽어보시면 더욱 좋습니다.</p>
@@ -155,24 +151,25 @@
 </div>
 
 <script>
+    // 🚀 심플하고 강력한 어포메이션으로 변경!
     const afformations = [
-        "왜 나는 존재 자체로 이미 충분하며, 이토록 완벽한 존재일까?",
-        "왜 나는 매달 5,000만 원 이상의 수익을 매번 쉽고 당연하게 벌어들이고 있을까?",
-        "왜 나의 자산 100억 달성은 이토록 빠르고 안정적으로 이루어지고 있는가?",
-        "왜 내가 구축한 자동화 시스템들은 잠자는 동안에도 나에게 자유와 풍요를 가져다줄까?",
-        "왜 나는 지점장으로서 조직을 이끌며 이토록 압도적인 성과와 리더십을 발휘하고 있을까?",
-        "왜 나는 사랑하는 딸에게 매일 최고의 영감을 주는 든든하고 다정한 아빠일까?",
-        "왜 내가 집필 중인 책은 수많은 사람의 인생을 바꾸며 세상을 더 좋게 만들고 있을까?",
-        "왜 우주의 기운과 풍수의 에너지는 항상 나를 가장 운 좋은 길로만 안내하는 걸까?",
-        "왜 나는 매 순간 마음의 평온을 유지하며 내가 원하는 현실을 아주 가볍게 창조하고 있을까?",
-        "왜 나의 삶은 시간이 갈수록 더 자유롭고, 풍요롭고, 행복한 기적으로 가득 차는 걸까?"
+        "왜 나는 이미 충분하고 완벽한가?",
+        "왜 매달 5,000만 원이 당연하게 들어오는가?",
+        "왜 자산 100억 달성은 이토록 쉬운가?",
+        "왜 내 시스템은 잠잘 때도 부를 가져다주는가?",
+        "왜 나는 압도적인 성과를 내는 리더인가?",
+        "왜 나는 딸에게 최고의 영감이 되는 아빠인가?",
+        "왜 내 책은 세상을 바꾸는 베스트셀러인가?",
+        "왜 온 우주는 나를 운 좋은 길로만 이끄는가?",
+        "왜 나는 평온하게 원하는 현실을 창조하는가?",
+        "왜 내 삶은 매일 기적으로 가득한가?"
     ];
 
     let currentIndex = 0;
     const canvas = document.getElementById('writeCanvas');
     const ctx = canvas.getContext('2d', { desynchronized: true }); 
     let isDrawing = false;
-    let undoHistory = []; // 🚀 되돌리기용 배열
+    let undoHistory = []; 
 
     function loadDateLog() {
         const lastDate = localStorage.getItem('miracle_pen_last_date');
@@ -205,7 +202,6 @@
         clearCanvas();
     }
 
-    // 🚀 화면 데이터 상태 기록하기
     function saveState() {
         if (!canvas.width || !canvas.height) return;
         undoHistory.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
@@ -214,7 +210,6 @@
         }
     }
 
-    // 🚀 뒤로 가기(Undo)
     function undo() {
         if (undoHistory.length > 1) {
             undoHistory.pop(); 
@@ -227,7 +222,6 @@
         ctx.fillStyle = "#1e293b"; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // 🚀 지울 때 되돌리기 역사도 리셋
         undoHistory = [];
         saveState();
     }
@@ -268,7 +262,7 @@
         if (isDrawing) {
             isDrawing = false;
             ctx.closePath();
-            saveState(); // 🚀 펜을 뗄때 상태 저장
+            saveState(); 
         }
     }
 
@@ -317,7 +311,6 @@
         updateUI();
         loadDateLog(); 
         
-        // 🚀 자바스크립트로 10개의 문장을 HTML에 동적으로 밀어넣기
         const summaryBox = document.getElementById('summary-box');
         summaryBox.innerHTML = afformations.map((text, idx) => 
             `<div class="summary-item"><span class="summary-num">${idx + 1}.</span> ${text}</div>`
