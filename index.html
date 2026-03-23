@@ -69,25 +69,10 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
             overflow: hidden;
             border: 1px solid #334155; 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: background-image 0.5s ease-in-out;
-        }
-        
-        /* 🚀 이미지 위에 글씨가 번쩍이도록 어두운 틴트(필터) 깔아주기 */
-        #canvas-wrapper::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.55); 
-            z-index: 0;
-            pointer-events: none;
         }
 
         canvas { 
             width: 100%; height: 100%; touch-action: none; display: block; 
-            position: relative; z-index: 1;
         }
 
         #controls {
@@ -142,6 +127,22 @@
         }
 
         .btn-skip { background: transparent; color: #94a3b8; border: 1px solid #475569; border-radius: 20px; padding: 8px 20px; font-size:0.85rem;}
+
+        /* 🚀 2. 비전 보드 오버레이 (글쓰기 완료 후 이미지 감상) */
+        #vision-overlay {
+            position: fixed; inset: 0; background-color: #000; z-index: 180;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #vision-image {
+            flex-grow: 1; width: 100%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #vision-controls {
+            flex-shrink: 0; width: 100%; padding: 20px 20px 40px; background: #000;
+            display: flex; justify-content: center; align-items: center;
+        }
 
         @keyframes breatheIn {
             from { transform: scale(1) translateZ(0); }
@@ -201,6 +202,14 @@
     <button class="btn-skip" onclick="endBreathing()" style="margin-top: 50px;">건너뛰기 (시작)</button>
 </div>
 
+<!-- 🚀 상상(시각화) 오버레이 -->
+<div id="vision-overlay">
+    <div id="vision-image"></div>
+    <div id="vision-controls">
+        <button class="btn-next" style="width: 250px; padding: 15px; font-size: 1.1rem;" id="vision-next-btn" onclick="nextStep()">다음 단계</button>
+    </div>
+</div>
+
 <div id="letgo-overlay">
     <div style="font-size: 1.3rem; line-height: 1.6; margin-bottom: 20px; color:#fbbf24;">수고하셨습니다.</div>
     <p style="font-size: 1.1rem; line-height: 1.6; color:#e2e8f0;">이제 모든 간절함을 우주에 맡기고<br>완전히 초연해지세요.</p>
@@ -222,7 +231,7 @@
     <button class="btn-undo" onclick="undo()">↩ 취소</button>
     <button class="btn-clear" onclick="clearCanvas()">전체 지움</button>
     <button class="btn-prev" onclick="prevStep()">이전</button>
-    <button class="btn-next" onclick="nextStep()" id="next-btn">다음 단계</button>
+    <button class="btn-next" onclick="showVisionBoard()" id="view-img-btn">이미지 보기</button>
 </div>
 
 <div id="complete-overlay">
@@ -378,9 +387,9 @@
         }
     }
 
-    // 🚀 Canvas 배경 투명화 처리로 전환
     function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#1e293b"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         undoHistory = [];
         saveState();
     }
@@ -428,17 +437,29 @@
     function updateUI() {
         document.getElementById('question-container').innerText = afformations[currentIndex];
         document.getElementById('page-num').innerText = `STEP ${String(currentIndex + 1).padStart(2, '0')} / 10`;
-        const nextBtn = document.getElementById('next-btn');
-        nextBtn.innerText = (currentIndex === afformations.length - 1) ? "완료하기" : "다음 단계";
-        
-        // 🚀 유저가 올린 파일 이름 규칙으로 완벽 매핑 (afformation_1.png ~ afformation_10.png)
-        const wrapper = document.getElementById('canvas-wrapper');
-        wrapper.style.backgroundImage = `url('afformation_${currentIndex + 1}.png')`;
-
         clearCanvas();
     }
 
+    // 🚀 작성 완료 후 [이미지 보기] 를 눌렀을 때 실행 (상상 + 다음단계로)
+    function showVisionBoard() {
+        const overlay = document.getElementById('vision-overlay');
+        const visionImg = document.getElementById('vision-image');
+        const visionNextBtn = document.getElementById('vision-next-btn');
+        
+        visionImg.style.backgroundImage = `url('afformation_${currentIndex + 1}.png')`;
+        
+        if (currentIndex === afformations.length - 1) {
+            visionNextBtn.innerText = "초연함으로 넘어가기 (완료)";
+        } else {
+            visionNextBtn.innerText = "다음 단계로";
+        }
+        
+        overlay.style.display = 'flex';
+    }
+
     function nextStep() {
+        document.getElementById('vision-overlay').style.display = 'none';
+
         if (currentIndex < afformations.length - 1) {
             currentIndex++;
             updateUI();
