@@ -130,18 +130,33 @@
 
         /* 🚀 2. 비전 보드 오버레이 (글쓰기 완료 후 이미지 감상) */
         #vision-overlay {
-            position: fixed; inset: 0; background-color: #000; z-index: 180;
+            position: fixed; inset: 0; background-color: #0f172a; z-index: 180;
             display: none; flex-direction: column; align-items: center; justify-content: center;
         }
+        #vision-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background-size: cover; background-position: center;
+            filter: blur(30px) brightness(0.4); 
+        }
         #vision-image {
-            flex-grow: 1; width: 100%;
+            flex-grow: 1; width: 100%; height: 100%;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
+            position: relative; z-index: 1;
+            /* 💡 안드로이드 자동 다크모드의 강제 어두워짐을 뚫어버리고 기본적으로 이미지를 화사하고 쨍하게 만듦! */
+            filter: brightness(1.25) contrast(1.05);
         }
         #vision-controls {
-            flex-shrink: 0; width: 100%; padding: 20px 20px 40px; background: #000;
+            flex-shrink: 0; width: 100%; padding: 20px 20px 40px; 
             display: flex; justify-content: center; align-items: center;
+            position: relative; z-index: 2;
+        }
+        #vision-next-btn {
+            background: #fbbf24; color: #0f172a;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+            border: none;
+            width: 250px; padding: 15px; font-size: 1.1rem; border-radius:15px; font-weight:900;
         }
 
         @keyframes breatheIn {
@@ -204,9 +219,10 @@
 
 <!-- 🚀 상상(시각화) 오버레이 -->
 <div id="vision-overlay">
+    <div id="vision-bg"></div>
     <div id="vision-image"></div>
     <div id="vision-controls">
-        <button class="btn-next" style="width: 250px; padding: 15px; font-size: 1.1rem;" id="vision-next-btn" onclick="nextStep()">다음 단계</button>
+        <button class="btn-next" id="vision-next-btn" onclick="nextStep()">다음 단계로</button>
     </div>
 </div>
 
@@ -444,12 +460,15 @@
     function showVisionBoard() {
         const overlay = document.getElementById('vision-overlay');
         const visionImg = document.getElementById('vision-image');
+        const visionBg = document.getElementById('vision-bg');
         const visionNextBtn = document.getElementById('vision-next-btn');
         
-        visionImg.style.backgroundImage = `url('afformation_${currentIndex + 1}.png')`;
+        const imageUrl = `url('afformation_${currentIndex + 1}.png')`;
+        visionImg.style.backgroundImage = imageUrl;
+        visionBg.style.backgroundImage = imageUrl;
         
         if (currentIndex === afformations.length - 1) {
-            visionNextBtn.innerText = "초연함으로 넘어가기 (완료)";
+            visionNextBtn.innerText = "초연함으로 넘어가기 (마무리)";
         } else {
             visionNextBtn.innerText = "다음 단계로";
         }
