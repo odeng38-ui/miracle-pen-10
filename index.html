@@ -128,61 +128,59 @@
 
 <main class="flex-1 flex flex-col pt-24 pb-8 px-6 max-w-lg mx-auto w-full bg-aura">
     <!-- Progress -->
-    <div class="mb-10 fade-in-float">
-        <div class="flex items-end gap-2 mb-3">
-            <span id="step-num-big" class="text-4xl font-light font-headline text-primary">01</span>
-            <span class="text-lg font-body text-outline mb-1 tracking-widest uppercase">/ 10</span>
+    <div class="mb-6 fade-in-float">
+        <div class="flex items-end gap-2 mb-2">
+            <span id="step-num-big" class="text-2xl font-light font-headline text-primary opacity-60">01</span>
+            <span class="text-sm font-body text-outline mb-0.5 tracking-widest uppercase">/ 10</span>
         </div>
-        <div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+        <div class="w-full h-0.5 bg-surface-container rounded-full overflow-hidden">
             <div id="progress-bar" class="w-[10%] h-full bg-primary rounded-full transition-all duration-700"></div>
         </div>
     </div>
 
     <!-- Content -->
-    <section class="space-y-6 flex-grow flex flex-col">
-        <div class="space-y-3">
+    <section class="flex-grow flex flex-col min-h-0">
+        <div class="space-y-2 mb-4">
             <div class="flex justify-between items-center">
-                <span class="text-tertiary font-body text-[10px] tracking-[0.25em] uppercase font-bold" id="step-category">Daily Afformation</span>
-                <button id="tts-btn" onclick="speakAfformation()" class="flex items-center gap-1.5 bg-primary/5 text-primary text-[11px] font-bold px-3 py-1.5 rounded-full border border-primary/10 hover:bg-primary/10 transition-all">
-                    <span class="material-symbols-outlined text-sm">volume_up</span>
-                    음성 듣기
+                <span class="text-tertiary font-body text-[9px] tracking-[0.2em] uppercase font-bold" id="step-category">Daily Afformation</span>
+                <button id="tts-btn" onclick="speakAfformation()" class="flex items-center gap-1.5 bg-primary/5 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full border border-primary/10 transition-all">
+                    <span class="material-symbols-outlined text-xs">volume_up</span>음성
                 </button>
             </div>
-            <h2 id="question-container" class="text-2xl md:text-3xl font-headline text-on-surface leading-tight min-h-[5rem]">질문을 불러오는 중...</h2>
+            <h2 id="question-container" class="text-xl md:text-2xl font-headline text-on-surface leading-snug">질문을 불러오는 중...</h2>
         </div>
 
         <!-- Canvas Area -->
-        <div class="flex-grow flex flex-col space-y-3">
-            <div class="flex items-center justify-between px-1">
-                <label class="font-body text-[10px] text-outline tracking-widest uppercase">Handwritten Reflection</label>
-                <div class="flex gap-3">
-                    <button onclick="undo()" class="flex items-center gap-1 text-primary/70 text-[11px] font-bold hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-sm">undo</span>취소
+        <div class="flex-grow flex flex-col min-h-0">
+            <div class="flex items-center justify-between px-1 mb-2">
+                <label class="font-body text-[9px] text-outline tracking-widest uppercase">Handwritten Reflection</label>
+                <div class="flex gap-4">
+                    <button onclick="undo()" class="flex items-center gap-1 text-primary/70 text-[10px] font-bold hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-xs">undo</span>취소
                     </button>
-                    <button onclick="clearCanvas()" class="text-outline text-[11px] hover:text-primary transition-colors">전체 지움</button>
+                    <button onclick="clearCanvas()" class="text-outline text-[10px] hover:text-primary transition-colors">전체 지움</button>
                 </div>
             </div>
-            <div id="canvas-wrapper" class="relative w-full flex-grow rounded-[2.5rem] overflow-hidden shadow-sm border border-outline-variant/30 bg-surface-container-lowest canvas-paper group">
+            <div id="canvas-wrapper" class="relative w-full flex-grow rounded-3xl overflow-hidden shadow-2xl bg-primary border-4 border-white/10 group">
                 <canvas id="writeCanvas"></canvas>
-                <!-- Tool Hint Overlay (fades out on drawing) -->
-                <div id="canvas-hint" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center pointer-events-none transition-opacity duration-500 opacity-40">
-                    <span class="material-symbols-outlined text-4xl mb-2">edit_square</span>
-                    <p class="font-handwriting text-2xl text-outline-variant">여기에 문장을 직접 써 내려가세요...</p>
+                <!-- Tool Hint Overlay -->
+                <div id="canvas-hint" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center pointer-events-none transition-opacity duration-500 opacity-20">
+                    <span class="material-symbols-outlined text-4xl text-white/50 mb-2">edit_square</span>
+                    <p class="font-handwriting text-2xl text-white/40">이곳에 마음을 써보세요</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Navigation -->
-    <div class="mt-8 flex flex-col items-center gap-4">
-        <div class="flex w-full gap-3">
-            <button onclick="prevStep()" class="flex-1 py-4 rounded-full border border-outline-variant/50 text-secondary font-medium hover:bg-white transition-all active:scale-95">이전</button>
-            <button onclick="showVisionBoard()" id="view-img-btn" class="flex-[2] py-4 rounded-full bg-primary text-on-primary font-medium tracking-wide flex items-center justify-center gap-2 shadow-xl hover:opacity-90 transition-all active:scale-95">
+    <div class="mt-4 flex flex-col items-center gap-3">
+        <div class="flex w-full gap-2">
+            <button onclick="prevStep()" class="flex-1 py-3 rounded-2xl border border-outline-variant/30 text-secondary text-sm font-medium hover:bg-white active:scale-95 transition-all">이전</button>
+            <button onclick="showVisionBoard()" id="view-img-btn" class="flex-[2.5] py-3 rounded-2xl bg-primary text-on-primary text-sm font-medium tracking-wide flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
                 <span>이미지 감상 & 다음</span>
-                <span class="material-symbols-outlined text-base">arrow_forward</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
             </button>
         </div>
-        <p class="text-outline text-[10px] font-body italic opacity-60">Take a deep breath and stay in the feeling.</p>
     </div>
 </main>
 
@@ -321,7 +319,7 @@
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#002045'; 
+        ctx.strokeStyle = '#ffffff'; 
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
         ctx.beginPath();
