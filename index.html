@@ -59,6 +59,7 @@
 
         /* Overlays Styles */
         .overlay { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .overlay.active { display: flex; }
         
         /* Breathe Circle */
         .breathe-circle {
@@ -80,7 +81,7 @@
 <body class="bg-surface font-body text-on-surface min-h-screen flex flex-col overflow-x-hidden">
 
 <!-- 🏠 Mode Selection Overlay (Home) -->
-<div id="home-overlay" class="overlay bg-surface bg-aura !flex items-center justify-center p-8">
+<div id="home-overlay" class="overlay active bg-surface bg-aura p-8">
     <div class="w-full max-w-sm flex flex-col items-center">
         <span class="material-symbols-outlined text-5xl text-primary mb-2">auto_fix_high</span>
         <h1 class="text-3xl font-headline italic text-primary mb-1">Sacred Space</h1>
@@ -164,7 +165,7 @@
     <div class="mb-6 fade-in-float">
         <div class="flex items-end gap-2 mb-2">
             <span id="step-num-big" class="text-2xl font-light font-headline text-primary opacity-60">01</span>
-            <span class="text-sm font-body text-outline mb-0.5 tracking-widest uppercase">/ 10</span>
+            <span id="step-total" class="text-sm font-body text-outline mb-0.5 tracking-widest uppercase">/ 10</span>
         </div>
         <div class="w-full h-0.5 bg-surface-container rounded-full overflow-hidden">
             <div id="progress-bar" class="w-[10%] h-full bg-primary rounded-full transition-all duration-700"></div>
@@ -252,7 +253,8 @@
     // --- Core Logic ---
 
     function goHome() {
-        document.getElementById('home-overlay').style.display = 'flex';
+        document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
+        document.getElementById('home-overlay').classList.add('active');
         if (synth.speaking) synth.cancel();
     }
 
@@ -269,7 +271,7 @@
         }
         
         currentIndex = 0;
-        document.getElementById('home-overlay').style.display = 'none';
+        document.getElementById('home-overlay').classList.remove('active');
         startBreathing();
     }
 
@@ -282,7 +284,7 @@
         document.getElementById('step-num-big').innerText = String(currentIndex + 1).padStart(2, '0');
         
         const total = currentList.length;
-        document.querySelector('.text-outline.mb-0.5').innerText = `/ ${total}`;
+        document.getElementById('step-total').innerText = `/ ${total}`;
         document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / total) * 100}%`;
         
         clearCanvas();
@@ -350,11 +352,11 @@
     }
 
     function undo() {
-        if (undoHistory.length > 1) {
-            undoHistory.pop(); // Remove current state
+        if (hasDrawn && undoHistory.length > 1) {
+            undoHistory.pop(); 
             const prevState = undoHistory[undoHistory.length - 1];
             ctx.putImageData(prevState, 0, 0);
-            if (undoHistory.length === 1) {
+            if (undoHistory.length <= 1) {
                  hasDrawn = false;
                  document.getElementById('canvas-hint').style.opacity = '0.4';
             }
@@ -418,11 +420,11 @@
         const btn = document.getElementById('vision-next-btn');
         btn.innerText = (currentIndex === currentList.length - 1) ? "마무리 단계로" : "다음 단계로";
         
-        overlay.style.display = 'flex';
+        overlay.classList.add('active');
     }
 
     function nextStep() {
-        document.getElementById('vision-overlay').style.display = 'none';
+        document.getElementById('vision-overlay').classList.remove('active');
         if (currentIndex < currentList.length - 1) {
             currentIndex++;
             updateUI();
@@ -446,7 +448,7 @@
         const circle = document.getElementById('breathe-circle');
         const text = document.getElementById('breathe-text');
         
-        overlay.style.display = 'flex';
+        overlay.classList.add('active');
         circle.style.animation = 'none';
         text.innerText = "준비...";
 
@@ -467,7 +469,7 @@
 
     function endBreathing() {
         clearTimeout(bTimer);
-        document.getElementById('breathe-overlay').style.display = 'none';
+        document.getElementById('breathe-overlay').classList.remove('active');
         updateUI();
     }
 
@@ -475,7 +477,7 @@
 
     function startLettingGo() {
         const overlay = document.getElementById('letgo-overlay');
-        overlay.style.display = 'flex';
+        overlay.classList.add('active');
         setTimeout(() => overlay.style.opacity = '1', 50);
 
         let count = 5;
@@ -487,7 +489,7 @@
                 clearInterval(itv);
                 overlay.style.opacity = '0';
                 setTimeout(() => {
-                    overlay.style.display = 'none';
+                    overlay.classList.remove('active');
                     showCompleteOverlay();
                 }, 1500);
             }
@@ -532,9 +534,9 @@
                 <p class="text-sm text-primary/90 leading-relaxed"><span class="font-bold text-tertiary mr-2 italic">${i+1}.</span>${t}</p>
             </div>
         `).join('');
-        document.getElementById('complete-overlay').style.display = 'flex';
+        document.getElementById('complete-overlay').classList.add('active');
         
-        // Celebration Alert (Simple popup style)
+        // Celebration Alert
         setTimeout(() => {
             alert(`🎉 축하합니다! ${streak}일 연속 목표를 달성하셨습니다.`);
         }, 500);
@@ -542,7 +544,7 @@
 
     function restart() {
         currentIndex = 0;
-        document.getElementById('complete-overlay').style.display = 'none';
+        document.getElementById('complete-overlay').classList.remove('active');
         startBreathing();
     }
 
