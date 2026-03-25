@@ -79,6 +79,39 @@
 
 <body class="bg-surface font-body text-on-surface min-h-screen flex flex-col overflow-x-hidden">
 
+<!-- 🏠 Mode Selection Overlay (Home) -->
+<div id="home-overlay" class="overlay bg-surface bg-aura !flex items-center justify-center p-8">
+    <div class="w-full max-w-sm flex flex-col items-center">
+        <span class="material-symbols-outlined text-5xl text-primary mb-2">auto_fix_high</span>
+        <h1 class="text-3xl font-headline italic text-primary mb-1">Sacred Space</h1>
+        <p class="text-outline text-xs tracking-widest uppercase mb-12">Choose Your Conscious Path</p>
+        
+        <div class="w-full space-y-4">
+            <button onclick="selectMode('afformation')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined">psychology_alt</span>
+                </div>
+                <div class="text-left">
+                    <h3 class="font-headline text-lg text-primary">Daily Afformation</h3>
+                    <p class="text-[11px] text-outline leading-tight">무의식의 질문을 통해 새로운 현실을 창조합니다 (10단계)</p>
+                </div>
+            </button>
+
+            <button onclick="selectMode('remember_when')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-tertiary/5 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-white transition-all">
+                    <span class="material-symbols-outlined">memento</span>
+                </div>
+                <div class="text-left">
+                    <h3 class="font-headline text-lg text-primary">Remember When</h3>
+                    <p class="text-[11px] text-outline leading-tight">미래의 기쁨을 회상하며 이미 이루어진 상태에 머뭅니다 (4단계)</p>
+                </div>
+            </button>
+        </div>
+        
+        <p class="mt-16 text-outline-variant text-[10px] italic">Focus on the feeling, not the logic.</p>
+    </div>
+</div>
+
 <!-- 🌬️ Breathe Overlay -->
 <div id="breathe-overlay" class="overlay bg-white/90 dark:bg-slate-900/90">
     <span class="text-tertiary font-label text-[10px] tracking-[0.25em] uppercase font-bold mb-4">Preparation</span>
@@ -121,8 +154,8 @@
 
 <!-- 📱 Main App Structure (Stitch Inspired) -->
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-white/60 backdrop-blur-xl border-b border-outline-variant/10">
-    <button class="text-primary hover:opacity-60"><span class="material-symbols-outlined">close</span></button>
-    <h1 class="font-headline text-xl italic text-primary">Sacred Space</h1>
+    <button onclick="goHome()" class="text-primary hover:opacity-60"><span class="material-symbols-outlined">home</span></button>
+    <h1 id="header-title" class="font-headline text-xl italic text-primary">Sacred Space</h1>
     <button class="text-primary hover:opacity-60"><span class="material-symbols-outlined">more_vert</span></button>
 </header>
 
@@ -198,6 +231,15 @@
         "왜 내 삶은 매일 기적으로 가득한가?"
     ];
 
+    const rememberWhen = [
+        "월 5,000만 원이 목표라며 계산기를 두드기던 그때가 기억나네. 지금은 이게 당연한 일상이 되었는데 말이야.",
+        "한화라이프랩 지점 코드를 처음 받고 실적 없다고 고민하던 26년 3월이 기억나네. 지금 이 거대한 조직을 보면 참 격세지감이야.",
+        "TrackVelop이 겨우 내 노트북 안에만 있었던 그때가 기억나네. 지금은 수많은 자산가의 필수품이 되었는데.",
+        "결과가 안 나온다고 '내려놓음'을 연습하던 그 초조했던 순간들이 기억나네. 결국 신의 흐름대로 다 될 일이었는데 말이지."
+    ];
+
+    let currentList = afformations;
+    let currentMode = 'afformation';
     let currentIndex = 0;
     const canvas = document.getElementById('writeCanvas');
     const ctx = canvas.getContext('2d', { desynchronized: true });
@@ -209,14 +251,39 @@
 
     // --- Core Logic ---
 
+    function goHome() {
+        document.getElementById('home-overlay').style.display = 'flex';
+        if (synth.speaking) synth.cancel();
+    }
+
+    function selectMode(mode) {
+        currentMode = mode;
+        if (mode === 'afformation') {
+            currentList = afformations;
+            document.getElementById('header-title').innerText = "Afformation";
+            document.getElementById('step-category').innerText = "Daily Afformation";
+        } else {
+            currentList = rememberWhen;
+            document.getElementById('header-title').innerText = "Remember When";
+            document.getElementById('step-category').innerText = "Future Memory";
+        }
+        
+        currentIndex = 0;
+        document.getElementById('home-overlay').style.display = 'none';
+        startBreathing();
+    }
+
     function updateUI() {
         // Cancel TTS if speaking
         if (synth.speaking) synth.cancel();
 
-        const q = afformations[currentIndex];
+        const q = currentList[currentIndex];
         document.getElementById('question-container').innerText = q;
         document.getElementById('step-num-big').innerText = String(currentIndex + 1).padStart(2, '0');
-        document.getElementById('progress-bar').style.width = `${(currentIndex + 1) * 10}%`;
+        
+        const total = currentList.length;
+        document.querySelector('.text-outline.mb-0.5').innerText = `/ ${total}`;
+        document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / total) * 100}%`;
         
         clearCanvas();
         hasDrawn = false;
@@ -230,7 +297,7 @@
             return;
         }
 
-        const text = afformations[currentIndex];
+        const text = currentList[currentIndex];
         const utterance = new SpeechSynthesisUtterance(text);
         const voices = synth.getVoices();
         const koVoice = voices.find(v => v.lang.includes('ko'));
@@ -342,20 +409,21 @@
         const bg = document.getElementById('vision-bg');
         const txt = document.getElementById('vision-text');
         
-        const url = `url('afformation_${currentIndex + 1}.png')`;
+        const imgPrefix = (currentMode === 'afformation') ? 'afformation_' : 'remember_';
+        const url = `url('${imgPrefix}${currentIndex + 1}.png')`;
         img.style.backgroundImage = url;
         bg.style.backgroundImage = url;
-        txt.innerText = afformations[currentIndex];
+        txt.innerText = currentList[currentIndex];
 
         const btn = document.getElementById('vision-next-btn');
-        btn.innerText = (currentIndex === afformations.length - 1) ? "마무리 단계로" : "다음 단계로";
+        btn.innerText = (currentIndex === currentList.length - 1) ? "마무리 단계로" : "다음 단계로";
         
         overlay.style.display = 'flex';
     }
 
     function nextStep() {
         document.getElementById('vision-overlay').style.display = 'none';
-        if (currentIndex < afformations.length - 1) {
+        if (currentIndex < currentList.length - 1) {
             currentIndex++;
             updateUI();
         } else {
@@ -459,7 +527,7 @@
         `;
 
         const summary = document.getElementById('summary-box');
-        summary.innerHTML = afformations.map((t, i) => `
+        summary.innerHTML = currentList.map((t, i) => `
             <div class="py-2 border-b border-outline-variant/10 last:border-none">
                 <p class="text-sm text-primary/90 leading-relaxed"><span class="font-bold text-tertiary mr-2 italic">${i+1}.</span>${t}</p>
             </div>
@@ -489,7 +557,6 @@
 
     window.onload = () => {
         resizeCanvas();
-        startBreathing();
     };
 
     window.addEventListener('resize', () => { setTimeout(resizeCanvas, 100); });
