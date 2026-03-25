@@ -149,7 +149,7 @@
         
         <div id="summary-box" class="w-full bg-white/50 border border-outline-variant/30 rounded-3xl p-6 space-y-4 max-h-[40vh] overflow-y-auto mb-8 shadow-inner"></div>
         
-        <button onclick="restart()" class="w-full py-4 rounded-full bg-primary text-on-primary font-bold shadow-xl hover:bg-primary-container transition-all active:scale-95">오늘의 어포메이션 완료하기</button>
+        <button onclick="finishSession()" class="w-full py-4 rounded-full bg-primary text-on-primary font-bold shadow-xl hover:bg-primary-container transition-all active:scale-95">수행 완료 및 홈으로 이동</button>
     </div>
 </div>
 
@@ -542,10 +542,9 @@
         }, 500);
     }
 
-    function restart() {
-        currentIndex = 0;
+    function finishSession() {
         document.getElementById('complete-overlay').classList.remove('active');
-        startBreathing();
+        goHome();
     }
 
     // --- Listeners ---
