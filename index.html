@@ -107,6 +107,11 @@
                     <p class="text-[11px] text-outline leading-tight">미래의 기쁨을 회상하며 이미 이루어진 상태에 머뭅니다 (4단계)</p>
                 </div>
             </button>
+
+            <button id="view-history-btn" onclick="showHistory()" class="hidden w-full py-4 px-6 rounded-2xl bg-white/50 border border-outline-variant/20 text-primary text-xs font-medium flex items-center justify-center gap-2 hover:bg-white transition-all">
+                <span class="material-symbols-outlined text-sm">event_note</span>
+                <span>마지막 어포메이션 복기하기</span>
+            </button>
         </div>
         
         <p class="mt-16 text-outline-variant text-[10px] italic">Focus on the feeling, not the logic.</p>
@@ -133,13 +138,6 @@
     </div>
 </div>
 
-<!-- 🌑 Let Go Overlay -->
-<div id="letgo-overlay" class="overlay bg-primary text-on-primary opacity-0 transition-opacity duration-1000">
-    <h2 class="text-2xl font-headline italic mb-4">수고하셨습니다.</h2>
-    <p class="text-center text-on-primary/70 leading-relaxed mb-12">이제 모든 간절함을 우주에 맡기고<br>완전히 초연해지세요.</p>
-    <div id="letgo-countdown" class="text-6xl font-light text-white/40">5</div>
-</div>
-
 <!-- 🏆 Complete Overlay -->
 <div id="complete-overlay" class="overlay bg-surface bg-aura">
     <div class="w-full max-w-md px-6 flex flex-col items-center">
@@ -153,7 +151,7 @@
     </div>
 </div>
 
-<!-- 📱 Main App Structure (Stitch Inspired) -->
+<!-- 📱 Main App Structure -->
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-white/60 backdrop-blur-xl border-b border-outline-variant/10">
     <button onclick="goHome()" class="text-primary hover:opacity-60"><span class="material-symbols-outlined">home</span></button>
     <h1 id="header-title" class="font-headline text-xl italic text-primary">Sacred Space</h1>
@@ -177,9 +175,6 @@
         <div class="space-y-2 mb-4">
             <div class="flex justify-between items-center">
                 <span class="text-tertiary font-body text-[9px] tracking-[0.2em] uppercase font-bold" id="step-category">Daily Afformation</span>
-                <button id="tts-btn" onclick="speakAfformation()" class="flex items-center gap-1.5 bg-primary/5 text-primary text-[10px] font-bold px-2.5 py-1 rounded-full border border-primary/10 transition-all">
-                    <span class="material-symbols-outlined text-xs">volume_up</span>음성
-                </button>
             </div>
             <h2 id="question-container" class="text-xl md:text-2xl font-headline text-on-surface leading-snug">질문을 불러오는 중...</h2>
         </div>
@@ -197,7 +192,6 @@
             </div>
             <div id="canvas-wrapper" class="relative w-full flex-grow rounded-3xl overflow-hidden shadow-2xl bg-primary border-4 border-white/10 group">
                 <canvas id="writeCanvas"></canvas>
-                <!-- Tool Hint Overlay -->
                 <div id="canvas-hint" class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center pointer-events-none transition-opacity duration-500 opacity-20">
                     <span class="material-symbols-outlined text-4xl text-white/50 mb-2">edit_square</span>
                     <p class="font-handwriting text-2xl text-white/40">이곳에 마음을 써보세요</p>
@@ -219,17 +213,17 @@
 </main>
 
 <script>
-    const afformations = [
-        "왜 나는 이미 충분하고 완벽한가?",
-        "왜 매달 5,000만 원이 당연하게 들어오는가?",
-        "왜 자산 100억 달성은 이토록 쉬운가?",
-        "왜 내 시스템은 잠잘 때도 부를 가져다주는가?",
-        "왜 나는 압도적인 성과를 내는 리더인가?",
-        "왜 나는 딸에게 최고의 영감이 되는 아빠인가?",
-        "왜 내 책은 세상을 바꾸는 베스트셀러인가?",
-        "왜 온 우주는 나를 운 좋은 길로만 이끄는가?",
-        "왜 나는 평온하게 원하는 현실을 창조하는가?",
-        "왜 내 삶은 매일 기적으로 가득한가?"
+    const afformationsData = [
+        ["왜 나는 존재 자체로 가장 가치 있는가?", "왜 나의 모든 부분은 이토록 완벽한가?", "왜 나는 나 자신을 온전히 받아들이는가?", "왜 나의 내면은 항상 충만하고 평온한가?", "왜 나는 내 삶의 유일무이한 걸작인가?", "왜 나의 존재는 세상에 빛을 전하는가?", "왜 나는 매 순간 가장 존엄한 존재인가?", "왜 나는 나의 모든 결점까지 사랑하는가?", "왜 나의 존재감은 이토록 단단하고 확고한가?", "왜 나는 내가 원하는 모든 것을 누릴 자격이 있는가?"],
+        ["왜 나의 통장은 매달 5,000만 원으로 가득 차는가?", "왜 돈은 나에게 가장 쉽고 자연스럽게 흘러오는가?", "왜 나의 수입은 매달 기하급수적으로 늘어나는가?", "왜 부는 내가 하는 모든 일에 당연하게 따라오는가?", "왜 나는 풍요로운 현금 흐름의 중심인가?", "왜 세상의 돈은 나를 향해 밀려드는가?", "왜 나는 5,000만 원을 버는 것이 이토록 당연한가?", "왜 나의 수익 창출 능력은 한계가 없는가?", "왜 매달 5,000만 원은 나의 기본 수익인가?", "왜 나의 부는 멈추지 않고 증가하는가?"],
+        ["왜 100억 자산은 나의 현실이 되었는가?", "왜 나의 자산은 눈덩이처럼 불어나는가?", "왜 나는 100억을 관리할 탁월한 능력을 갖췄는가?", "왜 자산 100억 달성은 나의 운명인가?", "왜 나의 재정적 기반은 이토록 탄탄한가?", "왜 세상의 모든 투자 기회는 나에게 모이는가?", "왜 나는 부의 흐름을 지휘하는 마에스트로인가?", "왜 100억은 나에게 가장 쉽고 숫자인가?", "왜 나의 자산 증가는 멈추지 않는가?", "왜 나는 경제적 자유를 완전히 누리는가?"],
+        ["왜 나의 시스템은 24시간 나를 위해 작동하는가?", "왜 나는 노동 없이도 풍요로운 삶을 누리는가?", "왜 나의 시스템은 기하급수적 수익을 창출하는가?", "왜 나는 시간의 자유를 완전히 소유하는가?", "왜 나의 부는 내가 구축한 시스템에서 나오는가?", "왜 세상의 모든 자원은 내 시스템을 돕는가?", "왜 나는 무한한 파시브 인컴을 당연하게 누리는가?", "왜 나의 시스템은 나에게 무한한 자유를 주는가?", "왜 나는 시스템을 지휘하며 자유를 만끽하는가?", "왜 나의 자동화 시스템은 완벽하게 작동하는가?"],
+        ["왜 나의 조직은 압도적인 성과를 기록하는가?", "왜 나는 팀원들에게 영감을 주는 탁월한 리더인가?", "왜 세상의 모든 성과는 나를 향해 모이는가?", "왜 나의 결정은 항상 최고의 결과로 이어지는가?", "왜 나의 리더십은 조직을 승리로 이끄는가?", "왜 팀원들은 나를 믿고 따르는가?", "왜 나는 압도적인 성과의 기준이 되었는가?", "왜 나의 리더십 능력은 이토록 완벽한가?", "왜 나의 조직은 항상 업계 최고인가?", "왜 나의 리더십은 기적을 만들어내는가?"],
+        ["왜 나의 존재는 딸에게 가장 큰 축복인가?", "왜 나는 딸의 꿈을 지지하는 가장 든든한 아빠인가?", "왜 딸은 나를 통해 세상의 아름다움을 배우는가?", "왜 우리의 유대감은 날마다 깊어지는가?", "왜 나는 딸에게 최고의 롤모델인가?", "왜 딸의 성장은 나에게 가장 큰 기쁨인가?", "왜 나는 딸을 온전히 사랑하고 이해하는가?", "왜 딸은 나에게 최고의 영감을 주는가?", "왜 나의 아빠로서의 능력은 완벽한가?", "왜 우리의 사랑은 영원히 빛나는가?"],
+        ["왜 나의 책은 수많은 사람의 인생을 바꾸는가?", "왜 나의 메시지는 세상에 강력한 영향을 미치는가?", "왜 나의 책은 세상을 더 좋게 만드는가?", "왜 세상은 나의 책을 베스트셀러로 만드는가?", "왜 독자들은 나의 책에서 무한한 영감을 얻는가?", "왜 나의 책은 세상을 변화시키는 강력한 도구인가?", "왜 세상은 나의 메시지를 간절히 기다리는가?", "왜 나의 저자로서의 영향력은 무한한가?", "왜 나의 책은 세상을 구하는 기적인가?", "왜 나의 책은 영원히 베스트셀러로 남는가?"],
+        ["왜 나는 세상에서 가장 운 좋은 사람인가?", "왜 모든 기회는 나에게 가장 먼저 찾아오는가?", "왜 세상은 나를 위해 완벽하게 작동하는가?", "왜 나의 인생은 싱크로니시티로 가득한가?", "왜 나는 운의 흐름을 타고 승승장구하는가?", "왜 세상의 모든 에너지는 나를 돕는가?", "왜 나는 우주의 기운을 움직이는 존재인가?", "왜 나는 항상 가장 빛나는 운명을 선택하는가?", "왜 나의 행운은 멈추지 않는가?", "왜 나는 운의 중심에 서 있는가?"],
+        ["왜 나의 마인드는 현실을 창조하는 가장 강력한 힘인가?", "왜 나는 내가 원하는 모든 현실을 당연하게 창조하는가?", "왜 나의 창조 과정은 이토록 평온하고 즐거운가?", "왜 나는 내 삶의 유일한 창조주인가?", "왜 모든 현실은 나의 내면에서 비롯되는가?", "왜 나는 기적을 창조하는 마법사인가?", "왜 나는 평온 속에서 원하는 현실을 구체화하는가?", "왜 나의 창조 능력은 한계가 없는가?", "왜 세상은 나의 창조를 돕는 완벽한 파트너인가?", "왜 나의 현실은 날마다 내가 원하는 대로 변화하는가?"],
+        ["왜 나의 하루는 기적 같은 사건들로 가득한가?", "왜 나는 매 순간 기적을 발견하는 눈을 가졌는가?", "왜 나의 삶은 예상치 못한 행운으로 넘쳐나는가?", "왜 나는 기쁨과 감사의 기적 속에서 사는가?", "왜 세상은 나에게 날마다 새로운 기적을 선물하는가?", "왜 나는 기적을 불러들이는 자석인가?", "왜 나의 삶 자체가 위대한 기적인가?", "왜 나는 기적을 당연하게 누리는가?", "왜 나의 기적은 멈추지 않고 증가하는가?", "왜 나는 기적의 흐름에 몸을 맡기는가?"]
     ];
 
     const rememberWhen = [
@@ -239,7 +233,7 @@
         "결과가 안 나온다고 '내려놓음'을 연습하던 그 초조했던 순간들이 기억나네. 결국 신의 흐름대로 다 될 일이었는데 말이지."
     ];
 
-    let currentList = afformations;
+    let currentList = [];
     let currentMode = 'afformation';
     let currentIndex = 0;
     const canvas = document.getElementById('writeCanvas');
@@ -248,20 +242,30 @@
     let hasDrawn = false;
     let undoHistory = [];
 
-    const synth = window.speechSynthesis;
-
     // --- Core Logic ---
 
     function goHome() {
         document.querySelectorAll('.overlay').forEach(el => el.classList.remove('active'));
         document.getElementById('home-overlay').classList.add('active');
-        if (synth.speaking) synth.cancel();
+        updateHomeUI();
+    }
+
+    function updateHomeUI() {
+        const lastSession = JSON.parse(localStorage.getItem('last_afformation_session') || "null");
+        const historyBtn = document.getElementById('view-history-btn');
+        if (lastSession) {
+            historyBtn.classList.remove('hidden');
+        } else {
+            historyBtn.classList.add('hidden');
+        }
     }
 
     function selectMode(mode) {
         currentMode = mode;
         if (mode === 'afformation') {
-            currentList = afformations;
+            currentList = afformationsData.map(category => {
+                return category[Math.floor(Math.random() * category.length)];
+            });
             document.getElementById('header-title').innerText = "Afformation";
             document.getElementById('step-category').innerText = "Daily Afformation";
         } else {
@@ -276,9 +280,6 @@
     }
 
     function updateUI() {
-        // Cancel TTS if speaking
-        if (synth.speaking) synth.cancel();
-
         const q = currentList[currentIndex];
         document.getElementById('question-container').innerText = q;
         document.getElementById('step-num-big').innerText = String(currentIndex + 1).padStart(2, '0');
@@ -290,41 +291,6 @@
         clearCanvas();
         hasDrawn = false;
         document.getElementById('canvas-hint').style.opacity = '0.4';
-    }
-
-    function speakAfformation() {
-        if (synth.speaking) {
-            synth.cancel();
-            resetTTSButton();
-            return;
-        }
-
-        const text = currentList[currentIndex];
-        const utterance = new SpeechSynthesisUtterance(text);
-        const voices = synth.getVoices();
-        const koVoice = voices.find(v => v.lang.includes('ko'));
-        if (koVoice) utterance.voice = koVoice;
-        utterance.rate = 0.9;
-
-        const btn = document.getElementById('tts-btn');
-        const originalHtml = btn.innerHTML;
-        
-        utterance.onstart = () => {
-            btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-pulse">pause</span> 재생 중...`;
-            btn.classList.add('bg-primary/20');
-        };
-        utterance.onend = () => {
-            btn.innerHTML = originalHtml;
-            btn.classList.remove('bg-primary/20');
-        };
-        
-        synth.speak(utterance);
-    }
-
-    function resetTTSButton() {
-        const btn = document.getElementById('tts-btn');
-        btn.innerHTML = `<span class="material-symbols-outlined text-sm">volume_up</span> 음성 듣기`;
-        btn.classList.remove('bg-primary/20');
     }
 
     // --- Canvas Logic ---
@@ -342,7 +308,7 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         hasDrawn = false;
         document.getElementById('canvas-hint').style.opacity = '0.4';
-        saveState(); // Record the cleared state
+        saveState();
     }
 
     function saveState() {
@@ -399,11 +365,11 @@
     function stopDrawing() {
         if (isDrawing) {
             isDrawing = false;
-            saveState(); // Save state when stroke ends
+            saveState();
         }
     }
 
-    // --- Step Navigation & Overlays ---
+    // --- Navigation ---
 
     function showVisionBoard() {
         const overlay = document.getElementById('vision-overlay');
@@ -473,7 +439,7 @@
         updateUI();
     }
 
-    // --- Letting Go ---
+    // --- Letting Go & Completion ---
 
     function startLettingGo() {
         const overlay = document.getElementById('letgo-overlay');
@@ -500,13 +466,18 @@
         const today = new Date().toLocaleDateString('ko-KR');
         let dates = JSON.parse(localStorage.getItem('miracle_pen_dates') || "[]");
         
-        // Save today's completion
         if (!dates.includes(today)) {
             dates.push(today);
             localStorage.setItem('miracle_pen_dates', JSON.stringify(dates));
         }
 
-        // Calculate continuous streak (simple version)
+        if (currentMode === 'afformation') {
+            localStorage.setItem('last_afformation_session', JSON.stringify({
+                date: today,
+                questions: currentList
+            }));
+        }
+
         let streak = 0;
         const sortedDates = dates.map(d => new Date(d)).sort((a,b) => b-a);
         let curr = new Date().setHours(0,0,0,0);
@@ -536,18 +507,45 @@
         `).join('');
         document.getElementById('complete-overlay').classList.add('active');
         
-        // Celebration Alert
         setTimeout(() => {
             alert(`🎉 축하합니다! ${streak}일 연속 목표를 달성하셨습니다.`);
         }, 500);
+    }
+
+    function showHistory() {
+        const lastSession = JSON.parse(localStorage.getItem('last_afformation_session') || "null");
+        if (!lastSession) return;
+
+        const summary = document.getElementById('summary-box');
+        summary.innerHTML = `
+            <div class="mb-4 text-center">
+                <span class="text-[10px] text-outline uppercase tracking-widest">${lastSession.date}의 기록</span>
+            </div>
+            ${lastSession.questions.map((t, i) => `
+                <div class="py-2 border-b border-outline-variant/10 last:border-none">
+                    <p class="text-sm text-primary/90 leading-relaxed"><span class="font-bold text-tertiary mr-2 italic">${i+1}.</span>${t}</p>
+                </div>
+            `).join('')}
+        `;
+        
+        document.getElementById('header-title').innerText = "Last Session";
+        document.getElementById('complete-overlay').classList.add('active');
+        const finishBtn = document.querySelector('#complete-overlay button');
+        const originalText = finishBtn.innerText;
+        finishBtn.innerText = "홈으로 돌아가기";
+        
+        const originalFinish = finishSession;
+        window.finishSession = function() {
+            finishBtn.innerText = originalText;
+            originalFinish();
+            window.finishSession = originalFinish;
+        };
     }
 
     function finishSession() {
         document.getElementById('complete-overlay').classList.remove('active');
         goHome();
     }
-
-    // --- Listeners ---
 
     canvas.addEventListener('touchstart', startDrawing, {passive: false});
     canvas.addEventListener('touchmove', draw, {passive: false});
@@ -558,6 +556,7 @@
 
     window.onload = () => {
         resizeCanvas();
+        updateHomeUI();
     };
 
     window.addEventListener('resize', () => { setTimeout(resizeCanvas, 100); });
