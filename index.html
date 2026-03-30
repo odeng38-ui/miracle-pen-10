@@ -139,6 +139,35 @@
             </div>
         </div>
         
+        <!-- 📅 챌린지 & 캘린더 -->
+        <div class="w-full mt-8 pt-8 border-t border-outline-variant/10">
+            <!-- Challenge Mode -->
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary/60 text-lg">flag</span>
+                    <h3 class="font-headline text-sm text-primary font-medium">챌린지 목표</h3>
+                </div>
+                <div class="flex gap-1.5">
+                    <button onclick="setChallenge(0)" id="challenge-btn-0" class="px-3 py-1 rounded-full text-[10px] font-bold border transition-all text-outline border-outline-variant/30">없음</button>
+                    <button onclick="setChallenge(21)" id="challenge-btn-21" class="px-3 py-1 rounded-full text-[10px] font-bold border transition-all text-outline border-outline-variant/30">21일</button>
+                    <button onclick="setChallenge(66)" id="challenge-btn-66" class="px-3 py-1 rounded-full text-[10px] font-bold border transition-all text-outline border-outline-variant/30">66일</button>
+                </div>
+            </div>
+            <div id="challenge-progress-box" class="hidden mb-5 p-4 rounded-2xl bg-white/50 border border-outline-variant/10 shadow-sm"></div>
+
+            <!-- Monthly Calendar -->
+            <div class="flex items-center justify-between mb-2 mt-2">
+                <button onclick="changeMonth(-1)" class="p-1 text-primary/50 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined" style="font-size:18px">chevron_left</span>
+                </button>
+                <span id="calendar-title" class="text-[11px] font-bold text-primary tracking-widest uppercase"></span>
+                <button onclick="changeMonth(1)" class="p-1 text-primary/50 hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined" style="font-size:18px">chevron_right</span>
+                </button>
+            </div>
+            <div id="calendar-grid" class="grid grid-cols-7 gap-y-1 text-center"></div>
+        </div>
+
         <p class="mt-8 text-outline-variant text-[10px] italic">Focus on the feeling, not the logic.</p>
     </div>
 
@@ -296,6 +325,8 @@
             historyBtn.classList.add('hidden');
         }
         loadRecords();
+        renderCalendar();
+        renderChallengeProgress();
     }
 
     // --- Record Logic ---
@@ -638,6 +669,133 @@
     function finishSession() {
         document.getElementById('complete-overlay').classList.remove('active');
         goHome();
+    }
+
+    // --- Calendar & Challenge ---
+
+    let calendarYear, calendarMonth;
+
+    function parseKorDate(str) {
+        const parts = str.replace(/\.$/, '').split('. ');
+        return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    }
+
+    function renderCalendar() {
+        const now = new Date();
+        if (calendarYear === undefined) {
+            calendarYear = now.getFullYear();
+            calendarMonth = now.getMonth();
+        }
+
+        const dates = JSON.parse(localStorage.getItem('miracle_pen_dates') || "[]");
+        const doneSet = new Set(dates);
+        const todayStr = now.toLocaleDateString('ko-KR');
+
+        document.getElementById('calendar-title').innerText = `${calendarYear}년 ${calendarMonth + 1}월`;
+
+        const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+        const lastDate = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+        const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+
+        let html = dayLabels.map(d => `<div class="text-[9px] font-bold text-outline/40 py-1">${d}</div>`).join('');
+        for (let i = 0; i < firstDay; i++) html += `<div></div>`;
+
+        for (let d = 1; d <= lastDate; d++) {
+            const dateStr = new Date(calendarYear, calendarMonth, d).toLocaleDateString('ko-KR');
+            const isDone = doneSet.has(dateStr);
+            const isToday = dateStr === todayStr;
+
+            if (isDone) {
+                html += `<div class="flex items-center justify-center py-0.5">
+                    <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center ${isToday ? 'ring-2 ring-tertiary ring-offset-1' : ''}">
+                        <span class="text-[9px] font-bold text-white">${d}</span>
+                    </div>
+                </div>`;
+            } else if (isToday) {
+                html += `<div class="flex items-center justify-center py-0.5">
+                    <div class="w-6 h-6 rounded-full border border-primary/50 flex items-center justify-center">
+                        <span class="text-[9px] font-bold text-primary">${d}</span>
+                    </div>
+                </div>`;
+            } else {
+                html += `<div class="flex items-center justify-center py-0.5">
+                    <span class="text-[9px] text-outline/40">${d}</span>
+                </div>`;
+            }
+        }
+        document.getElementById('calendar-grid').innerHTML = html;
+    }
+
+    function changeMonth(dir) {
+        calendarMonth += dir;
+        if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
+        if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
+        renderCalendar();
+    }
+
+    function setChallenge(goal) {
+        const existing = JSON.parse(localStorage.getItem('miracle_pen_challenge') || "null");
+        if (goal === 0) {
+            if (!existing) return;
+            if (!confirm('현재 챌린지를 초기화하시겠습니까?')) return;
+            localStorage.removeItem('miracle_pen_challenge');
+        } else {
+            if (existing && existing.goal === goal) return;
+            if (existing && !confirm(`${existing.goal}일 챌린지를 ${goal}일로 변경하시겠습니까? 시작일이 오늘로 재설정됩니다.`)) return;
+            localStorage.setItem('miracle_pen_challenge', JSON.stringify({
+                goal: goal,
+                startDate: new Date().toLocaleDateString('ko-KR')
+            }));
+        }
+        renderChallengeProgress();
+    }
+
+    function renderChallengeProgress() {
+        const challenge = JSON.parse(localStorage.getItem('miracle_pen_challenge') || "null");
+        const box = document.getElementById('challenge-progress-box');
+
+        const currentGoal = challenge ? challenge.goal : 0;
+        [0, 21, 66].forEach(g => {
+            const btn = document.getElementById(`challenge-btn-${g}`);
+            if (!btn) return;
+            if (g === currentGoal) {
+                btn.className = 'px-3 py-1 rounded-full text-[10px] font-bold border transition-all bg-primary text-white border-primary';
+            } else {
+                btn.className = 'px-3 py-1 rounded-full text-[10px] font-bold border transition-all text-outline border-outline-variant/30 hover:border-primary/30 hover:text-primary';
+            }
+        });
+
+        if (!challenge) { box.classList.add('hidden'); return; }
+        box.classList.remove('hidden');
+
+        const dates = JSON.parse(localStorage.getItem('miracle_pen_dates') || "[]");
+        const startDate = parseKorDate(challenge.startDate);
+        startDate.setHours(0, 0, 0, 0);
+
+        const done = dates.filter(d => {
+            const dt = parseKorDate(d);
+            dt.setHours(0, 0, 0, 0);
+            return dt >= startDate;
+        }).length;
+
+        const goal = challenge.goal;
+        const pct = Math.min(100, Math.round((done / goal) * 100));
+        const remaining = Math.max(0, goal - done);
+        const isComplete = done >= goal;
+
+        box.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-primary">${goal}일 챌린지${isComplete ? ' 🎉' : ''}</span>
+                <span class="text-xs text-tertiary font-bold">${done} / ${goal}일</span>
+            </div>
+            <div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden mb-2">
+                <div class="h-full rounded-full transition-all duration-700 ${isComplete ? 'bg-tertiary' : 'bg-primary'}" style="width:${pct}%"></div>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-[9px] text-outline">${challenge.startDate} 시작</span>
+                <span class="text-[9px] ${isComplete ? 'text-tertiary font-bold' : 'text-outline'}">${isComplete ? '목표 달성!' : `${remaining}일 남음`}</span>
+            </div>
+        `;
     }
 
     canvas.addEventListener('touchstart', startDrawing, {passive: false});
