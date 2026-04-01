@@ -64,9 +64,12 @@
         /* Breathe Circle */
         .breathe-circle {
             width: 40px; height: 40px; border-radius: 50%;
-            box-shadow: 0 0 30px 15px rgba(173, 199, 247, 0.4);
-            background: #adc7f7;
-            margin: 40px auto; 
+            background: radial-gradient(circle at 35% 35%, #fffde7 0%, #ffdf24 35%, #e0aa00 75%, #a67c00 100%);
+            box-shadow: 
+                0 0 20px 10px rgba(255, 215, 0, 0.6), 
+                0 0 40px 20px rgba(255, 170, 0, 0.3),
+                inset -2px -2px 8px rgba(166, 124, 0, 0.6),
+                inset 2px 2px 8px rgba(255, 255, 255, 0.8);
             will-change: transform;
         }
         @keyframes breatheIn { from { transform: scale(1); } to { transform: scale(4.5); } }
@@ -93,30 +96,47 @@
         <p class="text-outline text-xs tracking-widest uppercase mb-12">Choose Your Conscious Path</p>
         
         <div class="w-full space-y-4">
-            <button onclick="selectMode('afformation')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                    <span class="material-symbols-outlined">psychology_alt</span>
-                </div>
-                <div class="text-left">
-                    <h3 class="font-headline text-lg text-primary">Daily Afformation</h3>
-                    <p class="text-[11px] text-outline leading-tight">무의식의 질문을 통해 새로운 현실을 창조합니다 (10단계)</p>
-                </div>
-            </button>
+            <!-- Daily Afformation -->
+            <div class="flex flex-col gap-1">
+                <button onclick="selectMode('afformation')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">psychology_alt</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-headline text-lg text-primary">Daily Afformation</h3>
+                        <p class="text-[11px] text-outline leading-tight">무의식의 질문을 통해 새로운 현실을 창조합니다 (10단계)</p>
+                    </div>
+                </button>
+                <button id="history-btn-afformation" onclick="showHistory('afformation')" class="self-end text-[10px] text-primary/60 hover:text-primary flex items-center gap-1 font-medium px-2 py-1 mr-2 transition-colors opacity-30 pointer-events-none"><span class="material-symbols-outlined text-[12px]">history</span> 기록 없음</button>
+            </div>
 
-            <button onclick="selectMode('remember_when')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-tertiary/5 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-white transition-all">
-                    <span class="material-symbols-outlined">history</span>
-                </div>
-                <div class="text-left">
-                    <h3 class="font-headline text-lg text-primary">Remember When</h3>
-                    <p class="text-[11px] text-outline leading-tight">미래의 기쁨을 회상하며 이미 이루어진 상태에 머뭅니다 (4단계)</p>
-                </div>
-            </button>
+            <!-- Remember When -->
+            <div class="flex flex-col gap-1">
+                <button onclick="selectMode('remember_when')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-tertiary/5 flex items-center justify-center text-tertiary group-hover:bg-tertiary group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">history</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-headline text-lg text-primary">Remember When</h3>
+                        <p class="text-[11px] text-outline leading-tight">미래의 기쁨을 회상하며 이미 이루어진 상태에 머뭅니다 (4단계)</p>
+                    </div>
+                </button>
+                <button id="history-btn-remember_when" onclick="showHistory('remember_when')" class="self-end text-[10px] text-tertiary/60 hover:text-tertiary flex items-center gap-1 font-medium px-2 py-1 mr-2 transition-colors opacity-30 pointer-events-none"><span class="material-symbols-outlined text-[12px]">history</span> 기록 없음</button>
+            </div>
 
-            <button id="view-history-btn" onclick="showHistory()" class="hidden w-full py-4 px-6 rounded-2xl bg-white/50 border border-outline-variant/20 text-primary text-xs font-medium flex items-center justify-center gap-2 hover:bg-white transition-all">
-                <span class="material-symbols-outlined text-sm">event_note</span>
-                <span>마지막 어포메이션 복기하기</span>
-            </button>
+            <!-- Leader's Vision -->
+            <div class="flex flex-col gap-1">
+                <button onclick="selectMode('leader')" class="w-full p-6 rounded-[2rem] bg-white border border-outline-variant/30 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all group flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-600/5 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined">stars</span>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-headline text-lg text-primary">Leader's Vision</h3>
+                        <p class="text-[11px] text-outline leading-tight">자석 리더, 압도적 성과, 100억 자산가 마인드 (3단계 랜덤)</p>
+                    </div>
+                </button>
+                <button id="history-btn-leader" onclick="showHistory('leader')" class="self-end text-[10px] text-amber-600/60 hover:text-amber-600 flex items-center gap-1 font-medium px-2 py-1 mr-2 transition-colors opacity-30 pointer-events-none"><span class="material-symbols-outlined text-[12px]">history</span> 기록 없음</button>
+            </div>
         </div>
 
         <!-- 📝 Achievement & Gratitude Record Section -->
@@ -178,13 +198,19 @@
 </div>
 
 <!-- 🌬️ Breathe Overlay -->
-<div id="breathe-overlay" class="overlay bg-white/90 dark:bg-slate-900/90">
-    <span class="text-tertiary font-label text-[10px] tracking-[0.25em] uppercase font-bold mb-4">Preparation</span>
-    <h2 class="text-3xl font-headline text-primary mb-2">무의식 동기화</h2>
-    <p class="text-outline text-sm mb-8 text-center px-12">글씨를 쓰기 전, 평온한 상태로 진입합니다.</p>
-    <div id="breathe-circle" class="breathe-circle"></div>
-    <div id="breathe-text" class="text-xl font-headline text-primary-container h-12 text-center">준비...</div>
-    <button onclick="endBreathing()" class="mt-20 text-outline text-xs border border-outline/30 px-6 py-2 rounded-full hover:bg-surface transition-colors">건너뛰기</button>
+<div id="breathe-overlay" class="overlay bg-white/90 dark:bg-slate-900/90 justify-center pb-20">
+    <div class="flex-grow flex flex-col items-center justify-end w-full pb-8">
+        <span class="text-tertiary font-label text-[10px] tracking-[0.25em] uppercase font-bold mb-4">Preparation</span>
+        <h2 class="text-3xl font-headline text-primary mb-2">무의식 동기화</h2>
+        <p class="text-outline text-sm text-center px-12">글씨를 쓰기 전, 평온한 상태로 진입합니다.</p>
+    </div>
+    <div class="h-64 flex flex-col items-center justify-center shrink-0 w-full relative">
+        <div id="breathe-circle" class="breathe-circle"></div>
+    </div>
+    <div class="flex-grow flex flex-col items-center justify-start w-full pt-8 relative">
+        <div id="breathe-text" class="text-xl font-headline text-primary-container h-12 text-center absolute top-4">준비...</div>
+    </div>
+    <button onclick="endBreathing()" class="absolute bottom-16 text-outline text-xs border border-outline/30 px-6 py-2 rounded-full hover:bg-surface transition-colors">건너뛰기</button>
 </div>
 
 <!-- 🖼️ Vision Overlay -->
@@ -299,6 +325,39 @@
         "결과가 안 나온다고 '내려놓음'을 연습하던 그 초조했던 순간들이 기억나네. 결국 신의 흐름대로 다 될 일이었는데 말이지."
     ];
 
+    const leaderData = [
+        "왜 나는 이번 달에 나를 능가할 최고의 인재 2명을 이렇게 쉽게 만났을까?",
+        "왜 사람들은 나랑 대화만 해도 내 팀에 합류하고 싶어 할까?",
+        "왜 내 주변에는 항상 같이 일하고 싶어 하는 유능한 사람들로 넘쳐날까?",
+        "왜 이번 4월 리크루팅은 역대급으로 매끄럽고 완벽하게 진행될까?",
+        "왜 후보자들은 내가 제시하는 비전을 듣자마자 확신에 찬 눈빛을 보낼까?",
+        "왜 나는 리크루팅을 할 때마다 사람의 잠재력을 귀신같이 알아볼까?",
+        "왜 내가 찍은 인재는 반드시 내 파트너가 되어 함께 성장하게 될까?",
+        "왜 나에게 합류하는 것이 그들에게 인생 최고의 행운이 되었을까?",
+        "왜 우리 팀은 나를 중심으로 이렇게 강력한 성공 에너지를 뿜어낼까?",
+        "왜 4월 30일 내 팀 명단에는 새로운 이름 2개가 이미 당당히 적혀 있을까?",
+        "왜 4월의 고객들은 내가 제안하기도 전에 먼저 상담을 요청해 올까?",
+        "왜 내가 만나는 고객마다 나를 전적으로 신뢰하며 계약을 진행할까?",
+        "왜 나는 상담을 할수록 더 큰 에너지를 얻고 실적은 저절로 따라올까?",
+        "왜 나의 전문적인 설명은 고객들의 마음을 이토록 시원하게 뚫어줄까?",
+        "왜 이번 달 실적은 내가 세운 목표치를 비웃듯이 초과 달성될까?",
+        "왜 고객들은 나를 만난 것을 인생의 큰 복이라고 생각하며 감사해할까?",
+        "왜 나는 매일매일 '계약 완료' 소식을 듣는 것이 당연한 일상이 되었을까?",
+        "왜 나의 20년 경력은 영업 현장에서 압도적인 차별화로 나타날까?",
+        "왜 내가 소개하는 모든 상품은 고객에게 완벽한 선물이 될까?",
+        "왜 4월의 영업 성과는 내 인생의 새로운 기준점이 될 만큼 훌륭할까?",
+        "왜 나는 이미 월 5천만 원의 소득을 올리는 사람처럼 이토록 여유로울까?",
+        "왜 나의 말 한마디 한마디는 팀원들에게 강력한 동기부여가 될까?",
+        "왜 나는 어떤 상황에서도 흔들리지 않는 평온한 성공자의 마음을 가졌을까?",
+        "왜 나의 하루는 내가 계획한 대로 완벽하게 흐르며 성과로 이어질까?",
+        "왜 나는 100억 자산가에 걸맞은 결단력과 실행력을 갖추게 되었을까?",
+        "왜 우주는 나의 지점장 직무와 사업 성장을 위해 모든 환경을 조성해 줄까?",
+        "왜 나는 리더로서 팀을 이끄는 매 순간이 이렇게 즐겁고 행복할까?",
+        "왜 나의 직관은 항상 가장 빠르고 정확한 성공의 길로 나를 안내할까?",
+        "왜 나는 매일 밤 잠들기 전, 오늘 이룬 성과에 깊은 안도감을 느낄까?",
+        "왜 나는 이미 모든 것을 이룬 사람으로서 오늘을 축제처럼 보낼까?"
+    ];
+
     let currentList = [];
     let currentMode = 'afformation';
     let currentIndex = 0;
@@ -317,13 +376,20 @@
     }
 
     function updateHomeUI() {
-        const lastSession = JSON.parse(localStorage.getItem('last_afformation_session') || "null");
-        const historyBtn = document.getElementById('view-history-btn');
-        if (lastSession) {
-            historyBtn.classList.remove('hidden');
-        } else {
-            historyBtn.classList.add('hidden');
-        }
+        ['afformation', 'remember_when', 'leader'].forEach(mode => {
+            const lastSession = JSON.parse(localStorage.getItem('last_session_' + mode) || "null");
+
+            const historyBtn = document.getElementById('history-btn-' + mode);
+            if (historyBtn) {
+                if (lastSession) {
+                    historyBtn.classList.remove('opacity-30', 'pointer-events-none');
+                    historyBtn.innerHTML = `<span class="material-symbols-outlined text-[12px]">history</span> 최근 기록 복기`;
+                } else {
+                    historyBtn.classList.add('opacity-30', 'pointer-events-none');
+                    historyBtn.innerHTML = `<span class="material-symbols-outlined text-[12px]">history</span> 기록 없음`;
+                }
+            }
+        });
         loadRecords();
         renderCalendar();
         renderChallengeProgress();
@@ -392,6 +458,19 @@
             });
             document.getElementById('header-title').innerText = "Afformation";
             document.getElementById('step-category').innerText = "Daily Afformation";
+        } else if (mode === 'leader') {
+            const recruiting = leaderData.slice(0, 10);
+            const sales = leaderData.slice(10, 20);
+            const identity = leaderData.slice(20, 30);
+            
+            currentList = [
+                recruiting[Math.floor(Math.random() * recruiting.length)],
+                sales[Math.floor(Math.random() * sales.length)],
+                identity[Math.floor(Math.random() * identity.length)]
+            ];
+            
+            document.getElementById('header-title').innerText = "Leader's Vision";
+            document.getElementById('step-category').innerText = "Leadership & Sales";
         } else {
             currentList = rememberWhen;
             document.getElementById('header-title').innerText = "Remember When";
@@ -501,8 +580,19 @@
         const bg = document.getElementById('vision-bg');
         const txt = document.getElementById('vision-text');
         
-        const imgPrefix = (currentMode === 'afformation') ? 'afformation_' : 'remember_';
-        const url = `url('${imgPrefix}${currentIndex + 1}.png')`;
+        let url = '';
+        if (currentMode === 'leader') {
+            const originalIndex = leaderData.indexOf(currentList[currentIndex]);
+            let imgNum = 1;
+            if (originalIndex >= 10 && originalIndex < 20) imgNum = 2; // 영업 실적
+            else if (originalIndex >= 20) imgNum = 3; // 리더의 정체성
+            
+            url = `url('leader_${imgNum}.png')`;
+        } else {
+            const imgNum = (currentIndex % 10) + 1;
+            url = `url('afformation_${imgNum}.png')`;
+        }
+        
         img.style.backgroundImage = url;
         bg.style.backgroundImage = url;
         txt.innerText = currentList[currentIndex];
@@ -595,12 +685,10 @@
             localStorage.setItem('miracle_pen_dates', JSON.stringify(dates));
         }
 
-        if (currentMode === 'afformation') {
-            localStorage.setItem('last_afformation_session', JSON.stringify({
-                date: today,
-                questions: currentList
-            }));
-        }
+        localStorage.setItem('last_session_' + currentMode, JSON.stringify({
+            date: today,
+            questions: currentList
+        }));
 
         let streak = 0;
         const sortedDates = dates.map(d => new Date(d)).sort((a,b) => b-a);
@@ -636,8 +724,8 @@
         }, 500);
     }
 
-    function showHistory() {
-        const lastSession = JSON.parse(localStorage.getItem('last_afformation_session') || "null");
+    function showHistory(mode) {
+        let lastSession = JSON.parse(localStorage.getItem('last_session_' + mode) || "null");
         if (!lastSession) return;
 
         const summary = document.getElementById('summary-box');
