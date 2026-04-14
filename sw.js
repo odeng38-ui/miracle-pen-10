@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miracle-pen-v1';
+const CACHE_NAME = 'miracle-pen-v2'; // 버전을 올려서 캐시 갱신 유도
 const ASSETS = [
     './',
     './index.html',
@@ -10,6 +10,21 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => cache.addAll(ASSETS))
+    );
+    self.skipWaiting(); // 새로운 서비스 워커가 즉시 활성화되도록 설정
+});
+
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.filter(cacheName => {
+                    return cacheName !== CACHE_NAME;
+                }).map(cacheName => {
+                    return caches.delete(cacheName);
+                })
+            );
+        })
     );
 });
 
