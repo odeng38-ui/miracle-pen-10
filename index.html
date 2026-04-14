@@ -144,6 +144,21 @@
             </div>
         </div>
 
+        <!-- ⏱️ 72-Hour Action Timer Section -->
+        <div class="w-full mt-8 pt-8 border-t border-outline-variant/10">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary/60 text-lg">timer</span>
+                    <h3 class="font-headline text-sm text-primary font-medium">72시간 법칙 실행 타이머</h3>
+                </div>
+                <button onclick="open72hModal()" class="text-[10px] bg-primary/5 text-primary px-3 py-1 rounded-full font-bold hover:bg-primary hover:text-white transition-all">새 결심 추가</button>
+            </div>
+            
+            <div id="timers-72h-list" class="space-y-3">
+                <!-- Timers will be injected here -->
+            </div>
+        </div>
+
         <!-- 📝 Achievement & Gratitude Record Section -->
         <div class="w-full mt-8 pt-8 border-t border-outline-variant/10">
             <div class="flex items-center gap-2 mb-4">
@@ -274,6 +289,25 @@
         </div>
 
         <button onclick="document.getElementById('custom-manage-overlay').classList.remove('active')" class="mt-6 w-full py-4 rounded-full bg-primary text-white font-bold shadow-xl active:scale-95 transition-all">완료</button>
+    </div>
+</div>
+
+<!-- ⏱️ 72-Hour Timer Input Overlay -->
+<div id="timer-72h-overlay" class="overlay bg-surface bg-aura p-8">
+    <div class="w-full max-w-sm flex flex-col">
+        <header class="flex justify-between items-center mb-8">
+            <button onclick="close72hModal()" class="text-primary"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h2 class="text-xl font-headline text-primary">72시간 내 실행할 일</h2>
+            <div class="w-6"></div>
+        </header>
+
+        <div class="bg-white/50 border border-outline-variant/20 rounded-3xl p-6 mb-6">
+            <p class="text-xs text-outline mb-4 leading-relaxed">72시간 내에 첫 걸음을 떼지 않으면 그 일은 영영 일어나지 않을 확률이 높습니다. 지금 바로 결심한 '행동'을 적어주세요.</p>
+            <textarea id="timer-72h-input" rows="3" placeholder="예: 구체적인 실행 계획 1단계 시작하기, 관련 전문가에게 연락하기 등" 
+                class="w-full p-4 rounded-2xl bg-white border border-outline-variant/30 focus:border-primary focus:ring-0 text-sm transition-all resize-none"></textarea>
+        </div>
+
+        <button onclick="submit72hTask()" class="w-full py-4 rounded-full bg-primary text-white font-bold shadow-xl active:scale-95 transition-all">타이머 시작</button>
     </div>
 </div>
 
@@ -427,6 +461,7 @@
         loadRecords();
         renderCalendar();
         renderChallengeProgress();
+        render72hTimers();
     }
 
     // --- Record Logic ---
@@ -482,6 +517,148 @@
         records = records.filter(r => r.id !== id);
         localStorage.setItem('miracle_pen_records', JSON.stringify(records));
         loadRecords();
+    }
+
+    // --- 72-Hour Timer Logic ---
+
+    function open72hModal() {
+        document.getElementById('timer-72h-overlay').classList.add('active');
+        if (Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    function close72hModal() {
+        document.getElementById('timer-72h-overlay').classList.remove('active');
+    }
+
+    function submit72hTask() {
+        const input = document.getElementById('timer-72h-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const startTime = Date.now();
+        const endTime = startTime + (72 * 60 * 60 * 1000);
+        
+        const tasks = JSON.parse(localStorage.getItem('miracle_pen_72h_tasks') || "[]");
+        tasks.push({
+            id: startTime,
+            text: text,
+            startTime: startTime,
+            endTime: endTime,
+            status: 'active'
+        });
+        
+        localStorage.setItem('miracle_pen_72h_tasks', JSON.stringify(tasks));
+        input.value = '';
+        close72hModal();
+        render72hTimers();
+        schedule72hNotifications(startTime, text, endTime);
+    }
+
+    function render72hTimers() {
+        const list = document.getElementById('timers-72h-list');
+        const tasks = JSON.parse(localStorage.getItem('miracle_pen_72h_tasks') || "[]");
+        
+        if (tasks.length === 0) {
+            list.innerHTML = `<p class="text-[10px] text-outline/40 text-center py-4 italic">아직 등록된 실행 계획이 없습니다.</p>`;
+            return;
+        }
+
+        list.innerHTML = tasks.map(t => {
+            const remaining = t.endTime - Date.now();
+            const isExpired = remaining <= 0;
+            
+            if (isExpired && t.status === 'active') {
+                t.status = 'expired';
+                // Update storage if needed, but we'll just handle display for now
+            }
+
+            const h = Math.floor(Math.max(0, remaining) / (1000 * 60 * 60));
+            const m = Math.floor((Math.max(0, remaining) % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((Math.max(0, remaining) % (1000 * 60)) / 1000);
+
+            let colorClass = "text-primary";
+            let bgClass = "bg-white/50";
+            if (h < 24) { colorClass = "text-orange-600 font-bold"; bgClass = "bg-orange-50/50"; }
+            if (h < 6) { colorClass = "text-red-600 font-bold animate-pulse"; bgClass = "bg-red-50/50"; }
+            if (isExpired) { colorClass = "text-outline/40"; bgClass = "bg-surface-container/50"; }
+
+            return `
+                <div class="p-4 rounded-2xl ${bgClass} border border-outline-variant/10 shadow-sm flex flex-col gap-3">
+                    <div class="flex justify-between items-start gap-3">
+                        <p class="text-xs text-primary/80 font-medium leading-relaxed flex-grow">${t.text}</p>
+                        <div class="text-right shrink-0">
+                            <span class="text-[14px] font-mono ${colorClass}">${isExpired ? '시간 종료' : `${h}h ${m}m ${s}s`}</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button onclick="complete72hTask(${t.id})" class="text-[10px] px-3 py-1 rounded-full border border-primary/20 text-primary hover:bg-primary hover:text-white transition-all">완료</button>
+                        <button onclick="delete72hTask(${t.id})" class="text-[10px] px-3 py-1 rounded-full border border-red-200 text-red-400 hover:bg-red-500 hover:text-white transition-all">삭제</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function complete72hTask(id) {
+        let tasks = JSON.parse(localStorage.getItem('miracle_pen_72h_tasks') || "[]");
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+            // Save to general records too
+            const records = JSON.parse(localStorage.getItem('miracle_pen_records') || "[]");
+            records.unshift({
+                id: Date.now(),
+                text: `✅ [72시간 성공] ${task.text}`,
+                date: new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+            });
+            localStorage.setItem('miracle_pen_records', JSON.stringify(records));
+        }
+        delete72hTask(id, false);
+        loadRecords();
+    }
+
+    function delete72hTask(id, confirmMsg = true) {
+        if (confirmMsg && !confirm('이 태스크를 삭제하시겠습니까?')) return;
+        let tasks = JSON.parse(localStorage.getItem('miracle_pen_72h_tasks') || "[]");
+        tasks = tasks.filter(t => t.id !== id);
+        localStorage.setItem('miracle_pen_72h_tasks', JSON.stringify(tasks));
+        render72hTimers();
+    }
+
+    setInterval(render72hTimers, 1000);
+
+    function schedule72hNotifications(id, text, endTime) {
+        if (Notification.permission !== 'granted') return;
+
+        // Note: For real push, we'd need a server or a persistent service worker.
+        // For this PWA, we'll try to show notifications if the app is open or managed by sw.
+        // We'll simulate milestones with timeouts (this only works if the tab stays open, 
+        // but it's a start for a PWA).
+        
+        const now = Date.now();
+        const milestones = [
+            { label: '24시간 남음', time: endTime - (24 * 60 * 60 * 1000) },
+            { label: '1시간 남음! 서두르세요', time: endTime - (1 * 60 * 60 * 1000) },
+            { label: '시간 종료', time: endTime }
+        ];
+
+        milestones.forEach(m => {
+            const delay = m.time - now;
+            if (delay > 0) {
+                setTimeout(() => {
+                    // Check if task still exists and is active
+                    const tasks = JSON.parse(localStorage.getItem('miracle_pen_72h_tasks') || "[]");
+                    const task = tasks.find(t => t.id === id);
+                    if (task) {
+                        new Notification("Miracle Pen - 72시간 법칙", {
+                            body: `[${m.label}] ${text}`,
+                            icon: 'icon.png'
+                        });
+                    }
+                }, delay);
+            }
+        });
     }
 
     function selectMode(mode) {
@@ -1016,6 +1193,13 @@
     window.onload = () => {
         resizeCanvas();
         updateHomeUI();
+        
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered', reg))
+                .catch(err => console.log('Service Worker registration failed', err));
+        }
     };
 
     window.addEventListener('resize', () => { setTimeout(resizeCanvas, 100); });
