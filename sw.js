@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miracle-pen-v2'; // 버전을 올려서 캐시 갱신 유도
+const CACHE_NAME = 'miracle-pen-v3'; // 버전을 올려서 캐시 갱신 유도
 const ASSETS = [
     './',
     './index.html',
